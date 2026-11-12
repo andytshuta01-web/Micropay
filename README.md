@@ -1,96 +1,116 @@
-# Micropay
+MicroPay
 
-MicroPay is a financial firewall for AI agents. The agent (Groq, tool-calling) explores resources and can request a payment with a justification; it can never trigger one itself. A **policy engine evaluates the request before it becomes a PayPal Sandbox transfer.
+**MicroPay** est un pare-feu financier pour agents IA. L’agent (Groq, tool-calling) explore des ressources et peut **demander** un paiement avec une justification ; il ne peut jamais le déclencher lui-même. Un **moteur de politiques évalue la demande avant qu’elle ne devienne un virement PayPal Sandbox.
 
-Project built for the PayPal AI Hackathon 2026 — “Build What’s Next with PayPal and AI”.
+Projet construit pour le **PayPal AI Hackathon 2026** — "Build What's Next with PayPal and AI".
 
-The principle
+ Le principe
 
-The AI agent can never trigger a payment directly. It submits a request with a justification and a confidence level. The policy engine checks the remaining budget (exceeding it = refusal), then evaluates the following controls:
+L’agent IA ne peut jamais déclencher un paiement directement. Il soumet une demande avec une justification et un niveau de confiance. Le moteur de politiques vérifie le budget restant (dépassement = refus), puis évalue les contrôles suivants :
 
-Is the provider on the allowed list?
-Is the amount below the auto-approval threshold?
-Does the recent payment frequency respect the set limit?
-Does the confidence level declared by the agent meet the required minimum? (The justification text is logged, not semantically evaluated.)
+1. Le fournisseur est-il dans la liste autorisée ?
+2. Le montant est-il sous le seuil d'auto-approbation ?
+3. La fréquence récente de paiements respecte-t-elle la limite fixée ?
+4. Le niveau de confiance déclaré par l'agent atteint-il le minimum requis ? (Le texte de justification est journalisé, pas évalué sémantiquement.)
 
-A policy rule that isn’t satisfied — provider off-list, frequency, confidence, or threshold — puts the request into pending human validation, even if its amount is low. A request that exceeds the remaining budget is refused. Compliant requests are executed via the PayPal Payouts API in Sandbox; a pending request triggers no transfer until it’s approved from the dashboard.
+Une règle de politique non satisfaite — fournisseur hors liste, fréquence, confiance ou seuil — place la demande en attente de validation humaine, même si son montant est faible. Une demande qui dépasse le budget restant est refusée. Les demandes conformes sont exécutées via l’**API Payouts de PayPal en Sandbox** ; une demande en attente ne déclenche aucun virement tant qu’elle n’est pas approuvée depuis le dashboard.
 
-The MicroPay workspace brings together mission creation and tracking, the dashboard, purchase requests, human validations, and transaction receipts that are printable or savable as PDF from the browser. Resources and providers remain simulated.
+L’espace MicroPay regroupe la création et le suivi des missions, le tableau de bord, les demandes d’achat, les validations humaines et les reçus de transaction imprimables ou enregistrables en PDF depuis le navigateur. Les ressources et fournisseurs restent simulés.
 
-Current limitations
-There is no account or authentication. The server listens only on 127.0.0.1: the app is intended for local use, not for shared or internet-exposed deployment.
-Available resources are a fictional catalog defined in backend/src/providers.js, not real paywalls or services.
-Payments go through PayPal Sandbox when credentials are configured. They are not production transfers.
-The Invoices page prepares a printable receipt; the browser’s dialog allows saving it as PDF. This is not a tax invoice.
-Stack
-Layer	Tech
-Frontend	HTML + CSS + vanilla JavaScript
-Backend	Node.js (Express)
-AI Agent	Groq (tool-calling), model llama-3.3-70b-versatile
-Payment	PayPal Sandbox — Payouts API
-Persistence	JSON file (backend/data/db.json)
-Project structure
+### Limites actuelles
+
+- Il n’y a pas de compte ni d’authentification. Le serveur écoute uniquement sur `127.0.0.1` : l’application est destinée à un usage local, pas à un déploiement partagé ou exposé sur Internet.
+- Les ressources disponibles sont un catalogue fictif défini dans `backend/src/providers.js`, et non de vrais paywalls ou services.
+- Les paiements passent par PayPal Sandbox lorsque les identifiants sont configurés. Ils ne constituent pas des virements en production.
+- La page Factures prépare un reçu imprimable ; la boîte de dialogue du navigateur permet de l’enregistrer en PDF. Il ne s’agit pas d’une facture fiscale.
+
+## Stack
+
+| Couche | Techno |
+|---|---|
+| Frontend | HTML + CSS + JavaScript vanilla |
+| Backend | Node.js (Express) |
+| Agent IA | Groq (tool-calling), modèle `llama-3.3-70b-versatile` |
+| Paiement | PayPal Sandbox — API Payouts |
+| Persistance | Fichier JSON (`backend/data/db.json`) |
+
+## Structure du projet
+
+```
 micropay/
   backend/
     src/
-      server.js          Express server and local web interface
-      agent.js            Groq reasoning loop (tool-calling)
-      policyEngine.js      spending policy engine
-      paypal.js            PayPal module (Payouts API sandbox)
-      providers.js         simulated providers and resources
-      store.js             JSON persistence
-      routes/missions.js   API endpoints
+      server.js          serveur Express et interface web locale
+      agent.js            boucle de raisonnement Groq (tool-calling)
+      policyEngine.js      moteur de politiques de dépense
+      paypal.js            module PayPal (Payouts API sandbox)
+      providers.js         fournisseurs et ressources simulés
+      store.js             persistance JSON
+      routes/missions.js   endpoints API
     .env.example
     package.json
   frontend/
-    index.html          animated home page
-    workspace.html      control space, missions, purchases and receipts
-    css/theme.css         dark theme and Syne / DM Sans typography
-    css/home.css          home page styles
-    css/workspace.css     control space styles
-    js/api.js             backend calls
-    js/workspace.js       dashboard, purchases and receipts
-    js/theme.js           theme toggle
-    js/theme-init.js      applies the remembered theme
+    index.html          page d'accueil animée
+    workspace.html      espace de contrôle, missions, achats et reçus
+    css/theme.css         thème sombre et typographies Syne / DM Sans
+    css/home.css          styles de la page d'accueil
+    css/workspace.css     styles de l'espace de contrôle
+    js/api.js             appels vers le backend
+    js/workspace.js       tableau de bord, achats et reçus
+    js/theme.js           bascule de thème
+    js/theme-init.js      application du thème mémorisé
   README.md
-Installation
-Running MicroPay
-bash
+```
+
+## Installation
+
+### Lancer MicroPay
+
+```bash
 cd micropay/backend
 npm install
+```
 
-Create backend/.env and fill in the required credentials:
+Créer `backend/.env` et renseigner les identifiants nécessaires :
 
-GROQ_API_KEY=your_groq_key
-PAYPAL_CLIENT_ID=your_sandbox_client_id
-PAYPAL_CLIENT_SECRET=your_sandbox_client_secret
-Free Groq key: https://console.groq.com
-PayPal sandbox app (client id/secret): https://developer.paypal.com/dashboard/applications
+```
+GROQ_API_KEY=ta_clé_groq
+PAYPAL_CLIENT_ID=ton_client_id_sandbox
+PAYPAL_CLIENT_SECRET=ton_client_secret_sandbox
+```
 
-Start the backend, which also serves the frontend:
+- Clé Groq gratuite : https://console.groq.com
+- App PayPal sandbox (client id/secret) : https://developer.paypal.com/dashboard/applications
 
-bash
+Lancer le backend, qui sert aussi le frontend :
+
+```bash
 npm start
+```
 
-Open http://localhost:4000. The health API route is available at http://localhost:4000/api/health. The server is bound to 127.0.0.1 and is not intended for public use without authentication.
+Ouvrir `http://localhost:4000`. La route API de santé est disponible sur `http://localhost:4000/api/health`. Le serveur est lié à `127.0.0.1` et n’est pas destiné à un usage public sans authentification.
 
-Usage
-From the home page, click Get Started to open the MicroPay workspace, no sign-up or login required.
-Create a mission and define its budget and spending rules.
-Track requests in Purchases and manually approve or deny those that get escalated.
-Review completed transactions in Invoices; print a receipt or save it as PDF from the browser.
-Simulated providers
+## Utilisation
 
-To keep the demo reliable, MicroPay doesn’t query real paywalls: backend/src/providers.js defines 5 fictional resources across 4 providers, with varied risk profiles so the policy engine can make different decisions.
+1. Depuis l’accueil, cliquer sur **Commencer** pour ouvrir l’espace MicroPay, sans inscription ni connexion.
+2. Créer une mission et définir son budget ainsi que ses règles de dépense.
+3. Suivre les demandes dans **Achats** et approuver ou refuser manuellement celles qui sont escaladées.
+4. Consulter les transactions terminées dans **Factures** ; imprimer un reçu ou l’enregistrer en PDF depuis le navigateur.
 
-Why the Payouts API rather than Checkout
+## Fournisseurs simulés
 
-A payment triggered by an autonomous agent is an outbound money transfer, with no human buyer available to interactively approve a transaction. PayPal’s Payouts API is built for that: a direct transfer to the recipient’s email, triggered server-side. It’s the technical choice consistent with the agentic commerce concept.
+Pour fiabiliser la démonstration, MicroPay n'interroge pas de vrais paywalls : `backend/src/providers.js` définit 5 ressources fictives réparties sur 4 fournisseurs, avec des profils de risque variés pour que le moteur de politiques puisse prendre différentes décisions.
 
-Target categories (PayPal AI Hackathon)
-Best Overall
-Best Use of Agentic Commerce
-Best Use of PayPal + AI
-License
+## Pourquoi l'API Payouts plutôt que Checkout
+
+Un paiement déclenché par un agent autonome est un envoi d'argent **sortant**, sans acheteur humain disponible pour approuver une transaction de façon interactive. L'API Payouts de PayPal est faite pour ça : un virement direct vers l'email du destinataire, déclenché côté serveur. C'est le choix technique cohérent avec le concept d'agentic commerce.
+
+## Catégories visées (PayPal AI Hackathon)
+
+- Best Overall
+- Best Use of Agentic Commerce
+- Best Use of PayPal + AI
+
+## Licence
 
 MIT
