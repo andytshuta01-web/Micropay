@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 1350" fill="none">
+  <style>
+    .edge { stroke: #454545; stroke-width: 1.15; opacity: .48; }
+    .node { fill: #111; opacity: .76; transform-box: fill-box; transform-origin: center; animation: node-pulse 5s ease-in-out infinite alternate; }
+    .node-soft { fill: #555; opacity: .58; }
+    .delay-1 { animation-delay: -1.7s; }
+    .delay-2 { animation-delay: -3.2s; }
+    @keyframes node-pulse {
+      from { opacity: .45; transform: scale(.85); }
+      to { opacity: .95; transform: scale(1.12); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .node { animation: none; }
+    }
+  </style>
+  <g class="edge">
+    <path d="M470 40 565 95 650 30 740 80 825 20 890 105M565 95 605 190 700 145 740 80 800 205 890 105M650 30 700 145 775 290 800 205 890 105M470 40 430 170 525 230 605 190 700 145M525 230 430 170 370 300 470 365 590 330 605 190M590 330 700 395 775 290 890 350 800 205M700 395 775 290 760 490 890 350M590 330 535 465 650 520 760 490 700 395M430 170 330 235 370 300 290 410 470 365 535 465 650 520M470 365 400 500 535 465 545 625 650 520 750 620 760 490M290 410 230 550 400 500 350 650 545 625 650 520M535 465 430 760 545 625 650 800 750 620 850 735M350 650 430 760 545 625 520 900 650 800 750 620 820 925M230 550 350 650 250 830 430 760 340 980 520 900 650 800 700 1010M430 760 340 980 430 1120 520 900 610 1080 700 1010 820 925 890 1080M250 830 340 980 205 1100 430 1120 520 1240 610 1080 700 1200 820 1125 890 1080M430 1120 350 1280 520 1240 610 1320 700 1200 820 1300M700 1010 820 925 890 1080 820 1125 700 1200 610 1080 520 1240"/>
+    <path d="M700 145 825 20M605 190 775 290M470 365 650 520M400 500 545 625M230 550 535 465M350 650 650 800M430 760 750 620M250 830 520 900M340 980 700 1010M430 1120 700 1200M610 1080 820 1125M760 490 850 735 820 925"/>
+    <path d="M420 65 470 40 500 135 565 95M330 235 430 170 525 230M290 410 370 300 535 465M230 550 290 410 400 500M350 650 400 500 430 760M250 830 350 650 520 900M205 1100 250 830 340 980M350 1280 430 1120 520 1240"/>
+  </g>
+  <g>
+    <circle class="node-soft" cx="420" cy="65" r="3"/>
+    <circle class="node delay-1" cx="470" cy="40" r="4"/>
+    <circle class="node-soft" cx="500" cy="135" r="3"/>
+    <circle class="node" cx="565" cy="95" r="5"/>
+    <circle class="node-soft" cx="650" cy="30" r="3"/>
+    <circle class="node" cx="740" cy="80" r="4"/>
+    <circle class="node-soft" cx="825" cy="20" r="3"/>
+    <circle class="node" cx="890" cy="105" r="6"/>
+    <circle class="node-soft" cx="605" cy="190" r="4"/>
+    <circle class="node" cx="700" cy="145" r="5"/>
+    <circle class="node-soft delay-2" cx="800" cy="205" r="3"/>
+    <circle class="node" cx="430" cy="170" r="4"/>
+    <circle class="node-soft" cx="330" cy="235" r="3"/>
+    <circle class="node" cx="525" cy="230" r="5"/>
+    <circle class="node-soft" cx="370" cy="300" r="4"/>
+    <circle class="node" cx="470" cy="365" r="5"/>
+    <circle class="node-soft" cx="590" cy="330" r="3"/>
+    <circle class="node" cx="775" cy="290" r="6"/>
+    <circle class="node-soft" cx="890" cy="350" r="4"/>
+    <circle class="node" cx="700" cy="395" r="5"/>
+    <circle class="node-soft" cx="290" cy="410" r="3"/>
+    <circle class="node" cx="535" cy="465" r="5"/>
+    <circle class="node-soft" cx="430" cy="430" r="3"/>
+    <circle class="node" cx="760" cy="490" r="5"/>
+    <circle class="node-soft" cx="400" cy="500" r="4"/>
+    <circle class="node" cx="650" cy="520" r="6"/>
+    <circle class="node-soft" cx="230" cy="550" r="4"/>
+    <circle class="node" cx="350" cy="650" r="4"/>
+    <circle class="node-soft delay-1" cx="545" cy="625" r="5"/>
+    <circle class="node" cx="750" cy="620" r="5"/>
+    <circle class="node-soft" cx="850" cy="735" r="3"/>
+    <circle class="node" cx="430" cy="760" r="5"/>
+    <circle class="node-soft" cx="250" cy="830" r="4"/>
+    <circle class="node" cx="650" cy="800" r="6"/>
+    <circle class="node-soft" cx="520" cy="900" r="4"/>
+    <circle class="node" cx="820" cy="925" r="5"/>
+    <circle class="node-soft" cx="340" cy="980" r="3"/>
+    <circle class="node" cx="700" cy="1010" r="6"/>
+    <circle class="node-soft" cx="610" cy="1080" r="4"/>
+    <circle class="node" cx="430" cy="1120" r="5"/>
+    <circle class="node-soft" cx="205" cy="1100" r="3"/>
+    <circle class="node" cx="820" cy="1125" r="4"/>
+    <circle class="node-soft delay-2" cx="520" cy="1240" r="5"/>
+    <circle class="node" cx="700" cy="1200" r="6"/>
+    <circle class="node-soft" cx="350" cy="1280" r="3"/>
+    <circle class="node" cx="610" cy="1320" r="4"/>
+    <circle class="node-soft" cx="890" cy="1080" r="3"/>
+  </g>
+  <g class="node-soft" opacity=".42">
+    <circle cx="185" cy="120" r="3"/><circle cx="250" cy="280" r="2"/><circle cx="145" cy="460" r="3"/>
+    <circle cx="175" cy="720" r="2"/><circle cx="125" cy="920" r="3"/><circle cx="165" cy="1190" r="2"/>
+    <circle cx="300" cy="80" r="2"/><circle cx="275" cy="1040" r="2"/>
+  </g>
+</svg>

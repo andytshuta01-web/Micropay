@@ -1,0 +1,21 @@
+{
+  "name": "micropay-backend",
+  "version": "1.0.0",
+  "description": "MicroPay — espace local sans compte, agent IA, politiques de dépense et PayPal Sandbox",
+  "type": "module",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "groq-sdk": "^0.9.1",
+    "nanoid": "^5.0.7"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

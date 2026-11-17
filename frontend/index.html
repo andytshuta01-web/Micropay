@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="fr">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#080808" />
+  <title>MicroPay — Le paiement maîtrisé pour les agents IA</title>
+  <meta name="description"
+    content="MicroPay donne aux agents IA les moyens d'agir, tout en gardant chaque dépense sous contrôle." />
+  <script src="js/theme-init.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Syne:wght@500;600;700;800&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="css/theme.css">
+  <link rel="stylesheet" href="css/home.css">
+  <link rel="prefetch" href="workspace.html">
+</head>
+
+<body class="home-page">
+  <div class="network-background" aria-hidden="true">
+    <img src="assets/network-background.svg" alt="">
+  </div>
+  <main>
+    <section class="home-hero" aria-labelledby="home-title">
+      <div class="home-hero__glow" aria-hidden="true"></div>
+      <button class="theme-toggle home-theme-toggle" type="button" data-theme-toggle></button>
+      <div class="hero-stage" id="hero-stage">
+        <div class="hero-stage__inner">
+          <div class="hero-mobile-brand" aria-hidden="true">
+            <div class="hero-mobile-brand__logo hero-mobile-brand__logo--micro">
+              <img src="assets/micropay-logo.png" alt="">
+            </div>
+            <div class="hero-mobile-brand__logo hero-mobile-brand__logo--paypal">
+              <svg class="paypal-mark" viewBox="0 0 40 48" aria-hidden="true">
+                <path fill="#009cde"
+                  d="M30.6 4.2C27.8 1.1 22.8 0 16.4 0H6.7c-.8 0-1.5.6-1.7 1.4L.1 31.7c-.1.6.3 1.1.9 1.1h7.3l1.8-11.4-.1.4c.2-.8.9-1.4 1.7-1.4h3.5c6.9 0 12.3-2.8 13.9-10.8.1-.2.1-.5.1-.7.4-2.7 0-4.9-1.3-6.4z" />
+                <path fill="#012169"
+                  d="M34.3 10.1c-1.7 8.2-7.3 12.5-16.2 12.5h-3.5c-1.2 0-2.2.9-2.4 2.1L9.5 39.2l-.8 5.2c-.1.5.3.9.8.9h6.2c.7 0 1.2-.5 1.3-1.1l.1-.3 1.2-7.5.1-.4c.1-.6.7-1.1 1.3-1.1h.9c5.9 0 10.5-2.4 11.9-9.4.6-2.9.3-5.3-1-7 .5-.3 1-.7 1.4-1.1 1.4-1.8 1.9-4.2 1.4-7.3z" />
+              </svg>
+              <span>PayPal</span>
+            </div>
+          </div>
+          <article class="hero-card hero-card--left" aria-label="MicroPay, contrôle des dépenses">
+            <div class="hero-card__glass">
+              <span class="hero-card__label">Contrôle intelligent</span>
+              <div class="brand-lockup brand-lockup--micro">
+                <img class="brand-lockup__image" src="assets/micropay-logo.png" alt="Logo MicroPay">
+                <span>Micro<span>Pay</span></span>
+              </div>
+              <span class="hero-card__caption">Chaque dépense, sous contrôle.</span>
+            </div>
+          </article>
+
+          <div class="hero-payment" id="hero-payment" aria-hidden="true">
+            <p class="hero-payment__status" aria-hidden="true">
+              <span class="hero-payment__status-pending">Online payment...</span>
+              <span class="hero-payment__status-paid">Paid ;)</span>
+            </p>
+            <div class="hero-payment__qr">
+              <img src="assets/micropay-qr.svg" alt="">
+            </div>
+            <div class="hero-payment__bank-card" aria-hidden="true">
+              <span class="hero-payment__bank-card-stripe"></span>
+              <span class="hero-payment__bank-card-detail"></span>
+            </div>
+            <span class="hero-payment__confirmation" aria-hidden="true"></span>
+            <div class="hero-final-cta" aria-hidden="true">
+              <a class="home-button home-button--primary" href="workspace.html">
+                <span>Commencer</span>
+                <svg class="home-button__arrow" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M4 10h12M11 5l5 5-5 5"/>
+                </svg>
+              </a>
+            </div>
+          </div>
+
+          <div class="hero-center">
+            <div class="hero-brand" id="hero-brand" aria-hidden="true">
+              <h1 id="home-title">
+                <span class="hero-title__line"><span>Laissez agir vos agents.</span></span>
+                <span class="hero-title__line hero-title__line--accent"><span>Gardez la maîtrise.</span></span>
+              </h1>
+              <p class="hero-description">MicroPay sécurise chaque décision de paiement, selon vos règles et votre
+                budget.</p>
+              <p class="hero-welcome" aria-hidden="true" aria-label="Bienvenue sur MicroPay"><span
+                  class="hero-welcome__prefix" aria-hidden="true">Bienvenue sur</span><strong
+                  aria-hidden="true">MicroPay</strong></p>
+            </div>
+          </div>
+
+          <article class="hero-card hero-card--right" aria-label="PayPal, fournisseur de paiement">
+            <div class="hero-card__glass hero-card__glass--paypal">
+              <span class="hero-card__label">Paiements via</span>
+              <div class="brand-lockup brand-lockup--paypal" aria-label="PayPal">
+                <svg class="paypal-mark" viewBox="0 0 40 48" role="img" aria-hidden="true">
+                  <path fill="#009cde"
+                    d="M30.6 4.2C27.8 1.1 22.8 0 16.4 0H6.7c-.8 0-1.5.6-1.7 1.4L.1 31.7c-.1.6.3 1.1.9 1.1h7.3l1.8-11.4-.1.4c.2-.8.9-1.4 1.7-1.4h3.5c6.9 0 12.3-2.8 13.9-10.8.1-.2.1-.5.1-.7.4-2.7 0-4.9-1.3-6.4z" />
+                  <path fill="#012169"
+                    d="M34.3 10.1c-1.7 8.2-7.3 12.5-16.2 12.5h-3.5c-1.2 0-2.2.9-2.4 2.1L9.5 39.2l-.8 5.2c-.1.5.3.9.8.9h6.2c.7 0 1.2-.5 1.3-1.1l.1-.3 1.2-7.5.1-.4c.1-.6.7-1.1 1.3-1.1h.9c5.9 0 10.5-2.4 11.9-9.4.6-2.9.3-5.3-1-7 .5-.3 1-.7 1.4-1.1 1.4-1.8 1.9-4.2 1.4-7.3z" />
+                </svg>
+                <span>PayPal</span>
+              </div>
+              <span class="hero-card__caption">Des paiements sécurisés.</span>
+            </div>
+          </article>
+        </div>
+      </div>
+      <div class="home-footnote"><span class="status-dot"></span> Vos règles. Votre budget. Vos décisions.</div>
+    </section>
+  </main>
+
+  <script>
+    (function () {
+      const stage = document.getElementById('hero-stage');
+      const brand = document.getElementById('hero-brand');
+      const payment = document.getElementById('hero-payment');
+      const finalCta = document.querySelector('.hero-final-cta');
+      const welcome = brand.querySelector('.hero-welcome');
+      const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const mobile = window.matchMedia('(max-width: 767px)').matches;
+      const welcomeTypingDuration = 750;
+      const welcomeRevealDuration = 350;
+      const welcomeDisplayDuration = 850;
+      const welcomeExitDuration = 450;
+      const paymentAnimationDuration = 4000;
+
+      let isExiting = false;
+      function handleStartClick(event) {
+        event.preventDefault();
+        if (isExiting) return;
+        isExiting = true;
+        try {
+          sessionStorage.setItem('micropay-transition', 'from-home');
+        } catch (e) {}
+        const targetUrl = 'workspace.html?from=home';
+        if (reducedMotion) {
+          window.location.assign(targetUrl);
+          return;
+        }
+        document.body.classList.add('page-exit-left');
+        window.setTimeout(function () {
+          window.location.assign(targetUrl);
+        }, 620);
+      }
+
+      document.querySelectorAll('a[href$="workspace.html"]').forEach(function (button) {
+        button.addEventListener('click', handleStartClick);
+      });
+
+      window.addEventListener('pageshow', function (event) {
+        if (event.persisted) {
+          document.body.classList.remove('page-exit-left');
+          isExiting = false;
+        }
+      });
+
+      function centerCardsOnQr() {
+        if (mobile) return;
+        const qr = payment.querySelector('.hero-payment__qr').getBoundingClientRect();
+        const targetX = qr.left + qr.width / 2;
+        const targetY = qr.top + qr.height / 2;
+        [
+          ['.hero-card--left', 'micro'],
+          ['.hero-card--right', 'paypal'],
+        ].forEach(function ([selector, name]) {
+          const card = stage.querySelector(selector).getBoundingClientRect();
+          stage.style.setProperty('--' + name + '-center-x', (targetX - (card.left + card.width / 2)) + 'px');
+          stage.style.setProperty('--' + name + '-center-y', (targetY - (card.top + card.height / 2)) + 'px');
+        });
+      }
+
+      function stackCardsOnLeft() {
+        if (mobile) return;
+        const inner = stage.querySelector('.hero-stage__inner').getBoundingClientRect();
+        const targetX = inner.left + inner.width * 0.28;
+        [
+          ['.hero-card--left', '--micro-cluster-x'],
+          ['.hero-card--right', '--paypal-cluster-x'],
+        ].forEach(function ([selector, property]) {
+          const card = stage.querySelector(selector).getBoundingClientRect();
+          stage.style.setProperty(property, (targetX - (card.left + card.width / 2)) + 'px');
+        });
+      }
+
+      function startSequence() {
+        centerCardsOnQr();
+        stage.classList.add('hero-stage--intro');
+        window.setTimeout(function () {
+          stage.classList.add('hero-stage--paypal-settled');
+        }, 1000);
+        window.setTimeout(function () {
+          stage.classList.add(mobile ? 'hero-stage--cluster-left' : 'hero-stage--split');
+        }, 1250);
+        window.setTimeout(function () {
+          stage.classList.add('hero-stage--intro-copy');
+          brand.setAttribute('aria-hidden', 'false');
+        }, 2000);
+        window.setTimeout(function () {
+          stage.classList.remove('hero-stage--intro-copy');
+          stage.classList.add('hero-stage--closing', 'hero-stage--cluster-left');
+          stackCardsOnLeft();
+          brand.setAttribute('aria-hidden', 'true');
+        }, 4000);
+        window.setTimeout(function () {
+          stage.classList.remove('hero-stage--closing');
+          stage.classList.add('hero-stage--welcome');
+          brand.setAttribute('aria-hidden', 'false');
+          welcome.setAttribute('aria-hidden', 'false');
+          window.setTimeout(function () {
+            stage.classList.add('hero-stage--welcome-out');
+            window.setTimeout(function () {
+              stage.classList.remove('hero-stage--welcome', 'hero-stage--welcome-out');
+              stage.classList.add('hero-stage--payment', 'hero-stage--bank-card');
+              brand.setAttribute('aria-hidden', 'true');
+              welcome.setAttribute('aria-hidden', 'true');
+              payment.setAttribute('aria-hidden', 'false');
+              window.setTimeout(function () {
+                stage.classList.add('hero-stage--final');
+                finalCta.setAttribute('aria-hidden', 'false');
+              }, paymentAnimationDuration);
+            }, welcomeExitDuration);
+          }, welcomeTypingDuration + welcomeRevealDuration + welcomeDisplayDuration);
+        }, 4700);
+      }
+
+      if (reducedMotion) {
+        centerCardsOnQr();
+        stage.classList.add('hero-stage--intro', 'hero-stage--split');
+        stage.classList.add('hero-stage--cluster-left', 'hero-stage--welcome', 'hero-stage--payment', 'hero-stage--bank-card', 'hero-stage--final');
+        stackCardsOnLeft();
+        brand.setAttribute('aria-hidden', 'false');
+        brand.querySelector('.hero-welcome').setAttribute('aria-hidden', 'false');
+        payment.setAttribute('aria-hidden', 'false');
+        finalCta.setAttribute('aria-hidden', 'false');
+        return;
+      }
+
+      if (mobile) stage.classList.add('hero-stage--split');
+      startSequence();
+    }());
+  </script>
+  <script src="js/theme.js"></script>
+</body>
+
+</html>

@@ -1,12 +1,12 @@
-MicroPay
+# MicroPay
 
-**MicroPay** est un pare-feu financier pour agents IA. L’agent (Groq, tool-calling) explore des ressources et peut **demander** un paiement avec une justification ; il ne peut jamais le déclencher lui-même. Un **moteur de politiques évalue la demande avant qu’elle ne devienne un virement PayPal Sandbox.
+**MicroPay** est un pare-feu financier pour agents IA. L’agent (Groq, tool-calling) explore des ressources et peut **demander** un paiement avec une justification ; il ne peut jamais le déclencher lui-même. Un **moteur de politiques** évalue la demande avant qu’elle ne devienne un virement PayPal Sandbox.
 
 Projet construit pour le **PayPal AI Hackathon 2026** — "Build What's Next with PayPal and AI".
 
- Le principe
+## Le principe
 
-L’agent IA ne peut jamais déclencher un paiement directement. Il soumet une demande avec une justification et un niveau de confiance. Le moteur de politiques vérifie le budget restant (dépassement = refus), puis évalue les contrôles suivants :
+L’agent IA **ne peut jamais déclencher un paiement directement**. Il soumet une demande avec une justification et un niveau de confiance. Le moteur de politiques vérifie le budget restant (dépassement = refus), puis évalue les contrôles suivants :
 
 1. Le fournisseur est-il dans la liste autorisée ?
 2. Le montant est-il sous le seuil d'auto-approbation ?
@@ -21,7 +21,9 @@ L’espace MicroPay regroupe la création et le suivi des missions, le tableau d
 
 - Il n’y a pas de compte ni d’authentification. Le serveur écoute uniquement sur `127.0.0.1` : l’application est destinée à un usage local, pas à un déploiement partagé ou exposé sur Internet.
 - Les ressources disponibles sont un catalogue fictif défini dans `backend/src/providers.js`, et non de vrais paywalls ou services.
+- Les missions de produits peuvent rechercher des articles fictifs via DummyJSON. Après validation humaine, MicroPay envoie un virement Payouts dans PayPal Sandbox au compte marchand de test configuré. Cela ne crée pas une vraie commande et aucun produit n’est livré.
 - Les paiements passent par PayPal Sandbox lorsque les identifiants sont configurés. Ils ne constituent pas des virements en production.
+- Les articles DummyJSON exigent `PAYPAL_MODE=sandbox` et `PAYPAL_SANDBOX_RECEIVER_EMAIL`; chaque demande reste en attente jusqu’à votre approbation dans MicroPay.
 - La page Factures prépare un reçu imprimable ; la boîte de dialogue du navigateur permet de l’enregistrer en PDF. Il ne s’agit pas d’une facture fiscale.
 
 ## Stack
@@ -77,10 +79,13 @@ Créer `backend/.env` et renseigner les identifiants nécessaires :
 GROQ_API_KEY=ta_clé_groq
 PAYPAL_CLIENT_ID=ton_client_id_sandbox
 PAYPAL_CLIENT_SECRET=ton_client_secret_sandbox
+PAYPAL_MODE=sandbox
+PAYPAL_SANDBOX_RECEIVER_EMAIL=adresse_du_compte_marchand_sandbox
 ```
 
 - Clé Groq gratuite : https://console.groq.com
 - App PayPal sandbox (client id/secret) : https://developer.paypal.com/dashboard/applications
+- Utilisez l’adresse d’un compte marchand **Sandbox** comme destinataire; ne mettez jamais de secret dans le frontend ou dans le chat.
 
 Lancer le backend, qui sert aussi le frontend :
 
@@ -93,7 +98,7 @@ Ouvrir `http://localhost:4000`. La route API de santé est disponible sur `http:
 ## Utilisation
 
 1. Depuis l’accueil, cliquer sur **Commencer** pour ouvrir l’espace MicroPay, sans inscription ni connexion.
-2. Créer une mission et définir son budget ainsi que ses règles de dépense.
+2. Créer une mission et définir son budget ainsi que ses règles de dépense. L’espace de mission affiche la demande, les étapes utiles de l’agent et sa réponse finale sous forme de conversation.
 3. Suivre les demandes dans **Achats** et approuver ou refuser manuellement celles qui sont escaladées.
 4. Consulter les transactions terminées dans **Factures** ; imprimer un reçu ou l’enregistrer en PDF depuis le navigateur.
 
