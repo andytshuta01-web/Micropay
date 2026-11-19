@@ -2,7 +2,6 @@
 
 **MicroPay** est un pare-feu financier pour agents IA. L’agent (Groq, tool-calling) explore des ressources et peut **demander** un paiement avec une justification ; il ne peut jamais le déclencher lui-même. Un **moteur de politiques** évalue la demande avant qu’elle ne devienne un virement PayPal Sandbox.
 
-Projet construit pour le **PayPal AI Hackathon 2026** — "Build What's Next with PayPal and AI".
 
 ## Le principe
 
@@ -120,11 +119,6 @@ Pour fiabiliser la démonstration, MicroPay n'interroge pas de vrais paywalls : 
 
 Un paiement déclenché par un agent autonome est un envoi d'argent **sortant**, sans acheteur humain disponible pour approuver une transaction de façon interactive. L'API Payouts de PayPal est faite pour ça : un virement direct vers l'email du destinataire, déclenché côté serveur. C'est le choix technique cohérent avec le concept d'agentic commerce.
 
-## Catégories visées (PayPal AI Hackathon)
-
-- Best Overall
-- Best Use of Agentic Commerce
-- Best Use of PayPal + AI
 
 ## Licence
 
