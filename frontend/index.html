@@ -14,6 +14,7 @@
   <link
     href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Syne:wght@500;600;700;800&display=swap"
     rel="stylesheet">
+  <link rel="stylesheet" href="assets/fontawesome/css/all.min.css">
   <link rel="stylesheet" href="css/theme.css">
   <link rel="stylesheet" href="css/home.css">
   <link rel="prefetch" href="workspace.html">
@@ -68,11 +69,9 @@
             </div>
             <span class="hero-payment__confirmation" aria-hidden="true"></span>
             <div class="hero-final-cta" aria-hidden="true">
-              <a class="home-button home-button--primary" href="workspace.html">
+              <a class="home-button home-button--primary" href="signup.html?next=workspace.html">
                 <span>Commencer</span>
-                <svg class="home-button__arrow" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                  <path d="M4 10h12M11 5l5 5-5 5"/>
-                </svg>
+                <i class="fa-solid fa-arrow-right home-button__arrow" aria-hidden="true"></i>
               </a>
             </div>
           </div>
@@ -135,24 +134,22 @@
         try {
           sessionStorage.setItem('micropay-transition', 'from-home');
         } catch (e) {}
-        const targetUrl = 'workspace.html?from=home';
+        const targetUrl = 'signup.html?next=workspace.html';
         if (reducedMotion) {
           window.location.assign(targetUrl);
           return;
         }
-        document.body.classList.add('page-exit-left');
+        document.body.classList.add('page-exit-fade');
         window.setTimeout(function () {
           window.location.assign(targetUrl);
-        }, 620);
+        }, 420);
       }
 
-      document.querySelectorAll('a[href$="workspace.html"]').forEach(function (button) {
-        button.addEventListener('click', handleStartClick);
-      });
+      document.querySelector('.hero-final-cta a').addEventListener('click', handleStartClick);
 
       window.addEventListener('pageshow', function (event) {
         if (event.persisted) {
-          document.body.classList.remove('page-exit-left');
+          document.body.classList.remove('page-exit-fade');
           isExiting = false;
         }
       });
@@ -186,6 +183,32 @@
       }
 
       function startSequence() {
+        if (mobile) {
+          stage.classList.add('hero-stage--mobile-flow', 'hero-stage--welcome');
+          brand.setAttribute('aria-hidden', 'false');
+          welcome.setAttribute('aria-hidden', 'false');
+          window.setTimeout(function () {
+            stage.classList.add('hero-stage--welcome-out');
+            window.setTimeout(function () {
+              stage.classList.remove('hero-stage--welcome', 'hero-stage--welcome-out');
+              brand.setAttribute('aria-hidden', 'true');
+              welcome.setAttribute('aria-hidden', 'true');
+              stage.classList.add('hero-stage--payment', 'hero-stage--bank-card');
+              payment.setAttribute('aria-hidden', 'false');
+              window.setTimeout(function () {
+                stage.classList.remove('hero-stage--payment', 'hero-stage--bank-card');
+                stage.classList.add('hero-stage--mobile-logo');
+                payment.setAttribute('aria-hidden', 'true');
+                window.setTimeout(function () {
+                  stage.classList.add('hero-stage--final');
+                  finalCta.setAttribute('aria-hidden', 'false');
+                }, 900);
+              }, paymentAnimationDuration);
+            }, welcomeExitDuration);
+          }, welcomeTypingDuration + welcomeRevealDuration + welcomeDisplayDuration);
+          return;
+        }
+
         centerCardsOnQr();
         stage.classList.add('hero-stage--intro');
         window.setTimeout(function () {
@@ -228,21 +251,29 @@
 
       if (reducedMotion) {
         centerCardsOnQr();
-        stage.classList.add('hero-stage--intro', 'hero-stage--split');
-        stage.classList.add('hero-stage--cluster-left', 'hero-stage--welcome', 'hero-stage--payment', 'hero-stage--bank-card', 'hero-stage--final');
-        stackCardsOnLeft();
-        brand.setAttribute('aria-hidden', 'false');
-        brand.querySelector('.hero-welcome').setAttribute('aria-hidden', 'false');
-        payment.setAttribute('aria-hidden', 'false');
+        if (mobile) {
+          stage.classList.add('hero-stage--mobile-flow', 'hero-stage--mobile-logo', 'hero-stage--final');
+          brand.setAttribute('aria-hidden', 'true');
+          welcome.setAttribute('aria-hidden', 'true');
+          payment.setAttribute('aria-hidden', 'true');
+        } else {
+          stage.classList.add('hero-stage--intro', 'hero-stage--split');
+          stage.classList.add('hero-stage--cluster-left', 'hero-stage--welcome', 'hero-stage--payment', 'hero-stage--bank-card', 'hero-stage--final');
+          stackCardsOnLeft();
+          brand.setAttribute('aria-hidden', 'false');
+          brand.querySelector('.hero-welcome').setAttribute('aria-hidden', 'false');
+          payment.setAttribute('aria-hidden', 'false');
+        }
         finalCta.setAttribute('aria-hidden', 'false');
         return;
       }
 
-      if (mobile) stage.classList.add('hero-stage--split');
       startSequence();
     }());
   </script>
+  <script src="js/i18n.js"></script>
   <script src="js/theme.js"></script>
+  <script src="js/ui-effects.js"></script>
 </body>
 
 </html>

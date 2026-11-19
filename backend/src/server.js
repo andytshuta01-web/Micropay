@@ -2,6 +2,7 @@ import express from 'express';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { config } from './config.js';
+import { authRouter, requireAuth } from './routes/auth.js';
 import { missionsRouter } from './routes/missions.js';
 import { listProviders, listResources } from './providers.js';
 
@@ -12,6 +13,7 @@ app.use(express.json({ limit: '16kb' }));
 app.get('/api/health', (req, res) => res.json({ ok: true }));
 app.get('/api/resources', (req, res) => res.json(listResources()));
 app.get('/api/providers', (req, res) => res.json(listProviders()));
+app.use('/api/auth', authRouter);
 app.use('/api/missions', (req, res, next) => {
   if (req.method === 'GET' || req.method === 'HEAD') return next();
   const origin = req.get('origin');
@@ -19,7 +21,7 @@ app.use('/api/missions', (req, res, next) => {
   if (origin === expectedOrigin) return next();
   return res.status(403).json({ error: 'Origine de requête non autorisée.' });
 });
-app.use('/api/missions', missionsRouter);
+app.use('/api/missions', requireAuth, missionsRouter);
 app.use(express.static(frontendPath));
 
 app.listen(config.port, '127.0.0.1', () => {

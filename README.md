@@ -19,7 +19,7 @@ L’espace MicroPay regroupe la création et le suivi des missions, le tableau d
 
 ### Limites actuelles
 
-- Il n’y a pas de compte ni d’authentification. Le serveur écoute uniquement sur `127.0.0.1` : l’application est destinée à un usage local, pas à un déploiement partagé ou exposé sur Internet.
+- La création de compte et la connexion protègent l’espace de contrôle. Les mots de passe sont hachés et les sessions sont stockées côté serveur ; les missions sont isolées par compte. Le serveur écoute uniquement sur `127.0.0.1` : l’application reste destinée à un usage local, pas à un déploiement partagé ou exposé sur Internet.
 - Les ressources disponibles sont un catalogue fictif défini dans `backend/src/providers.js`, et non de vrais paywalls ou services.
 - Les missions de produits peuvent rechercher des articles fictifs via DummyJSON. Après validation humaine, MicroPay envoie un virement Payouts dans PayPal Sandbox au compte marchand de test configuré. Cela ne crée pas une vraie commande et aucun produit n’est livré.
 - Les paiements passent par PayPal Sandbox lorsque les identifiants sont configurés. Ils ne constituent pas des virements en production.
@@ -34,7 +34,7 @@ L’espace MicroPay regroupe la création et le suivi des missions, le tableau d
 | Backend | Node.js (Express) |
 | Agent IA | Groq (tool-calling), modèle `llama-3.3-70b-versatile` |
 | Paiement | PayPal Sandbox — API Payouts |
-| Persistance | Fichier JSON (`backend/data/db.json`) |
+| Persistance | SQLite (`backend/data/micropay.sqlite`) |
 
 ## Structure du projet
 
@@ -47,22 +47,32 @@ micropay/
       policyEngine.js      moteur de politiques de dépense
       paypal.js            module PayPal (Payouts API sandbox)
       providers.js         fournisseurs et ressources simulés
-      store.js             persistance JSON
-      routes/missions.js   endpoints API
+      store.js             persistance SQLite et migration JSON
+      routes/auth.js       inscription, connexion et sessions
+      routes/missions.js   endpoints API protégés par compte
     .env.example
     package.json
   frontend/
     index.html          page d'accueil animée
+    login.html          connexion
+    signup.html         création de compte
     workspace.html      espace de contrôle, missions, achats et reçus
     css/theme.css         thème sombre et typographies Syne / DM Sans
     css/home.css          styles de la page d'accueil
     css/workspace.css     styles de l'espace de contrôle
     js/api.js             appels vers le backend
+    js/auth.js            formulaires de compte et déconnexion
     js/workspace.js       tableau de bord, achats et reçus
     js/theme.js           bascule de thème
     js/theme-init.js      application du thème mémorisé
   README.md
 ```
+
+## Persistance des données
+
+Les comptes, sessions, objectifs soumis à l’agent, missions, demandes de paiement et journaux de l’agent sont enregistrés dans `backend/data/micropay.sqlite`.
+
+Au premier démarrage, si `backend/data/db.json` existe, son contenu est importé dans SQLite. Le fichier JSON d’origine est conservé comme sauvegarde. Le chemin de la base peut être changé avec `MICROPAY_DB_PATH`; pour importer un ancien fichier situé ailleurs, utilisez `MICROPAY_LEGACY_DB_PATH`.
 
 ## Installation
 
@@ -97,7 +107,7 @@ Ouvrir `http://localhost:4000`. La route API de santé est disponible sur `http:
 
 ## Utilisation
 
-1. Depuis l’accueil, cliquer sur **Commencer** pour ouvrir l’espace MicroPay, sans inscription ni connexion.
+1. Depuis l’accueil, créer un compte ou se connecter pour accéder à l’espace MicroPay.
 2. Créer une mission et définir son budget ainsi que ses règles de dépense. L’espace de mission affiche la demande, les étapes utiles de l’agent et sa réponse finale sous forme de conversation.
 3. Suivre les demandes dans **Achats** et approuver ou refuser manuellement celles qui sont escaladées.
 4. Consulter les transactions terminées dans **Factures** ; imprimer un reçu ou l’enregistrer en PDF depuis le navigateur.

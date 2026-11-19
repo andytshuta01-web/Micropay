@@ -710,15 +710,13 @@ html[data-theme="light"] .brand-lockup--micro>span>span {
 .hero-welcome__prefix {
   display: inline-block;
   margin-right: 0.2em;
-  overflow: hidden;
-  clip-path: inset(0 100% 0 0);
   vertical-align: bottom;
   white-space: nowrap;
-  will-change: clip-path, opacity, transform;
+  will-change: opacity, transform, filter;
 }
 
 .hero-stage--welcome .hero-welcome__prefix {
-  animation: hero-welcome-prefix-in 750ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: hero-welcome-prefix-appear 750ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 .hero-welcome strong {
@@ -738,19 +736,16 @@ html[data-theme="light"] .brand-lockup--micro>span>span {
   will-change: opacity, transform, filter;
 }
 
-@keyframes hero-welcome-prefix-in {
+@keyframes hero-welcome-prefix-appear {
   0% {
-    clip-path: inset(0 100% 0 0);
     opacity: 0;
-    transform: translateX(-12px);
-  }
-  35% {
-    opacity: 1;
+    transform: translateY(8px);
+    filter: blur(3px);
   }
   100% {
-    clip-path: inset(0 0 0 0);
     opacity: 1;
-    transform: translateX(0);
+    transform: translateY(0);
+    filter: blur(0);
   }
 }
 
@@ -910,8 +905,8 @@ html[data-theme="light"] .brand-lockup--micro>span>span {
   letter-spacing: 0.02em;
   border-radius: 1rem;
   border: none !important;
-  background: #e5323b !important;
-  color: #fff !important;
+  background: var(--user-button-color, #e5323b) !important;
+  color: var(--user-button-text-color, #fff) !important;
   box-shadow: none !important;
   text-shadow: none !important;
   filter: none !important;
@@ -926,18 +921,18 @@ html[data-theme="light"] .brand-lockup--micro>span>span {
 .hero-final-cta .home-button:hover,
 .home-page .hero-final-cta .home-button:hover,
 .home-page .hero-final-cta .home-button--primary:hover {
-  background: #cf222b !important;
+  background: var(--user-button-hover-color, #cf222b) !important;
   border: none !important;
   box-shadow: none !important;
   filter: none !important;
-  color: #fff !important;
+  color: var(--user-button-text-color, #fff) !important;
   transform: translateY(-2px);
 }
 
 .hero-final-cta .home-button:active,
 .home-page .hero-final-cta .home-button:active,
 .home-page .hero-final-cta .home-button--primary:active {
-  background: #b51c24 !important;
+  background: var(--user-button-hover-color, #b51c24) !important;
   border: none !important;
   box-shadow: none !important;
   filter: none !important;
@@ -953,8 +948,11 @@ html[data-theme="light"] .brand-lockup--micro>span>span {
 }
 
 .home-button__arrow {
+  display: inline-flex;
   width: 1.15rem;
   height: 1.15rem;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
   transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
@@ -963,24 +961,23 @@ html[data-theme="light"] .brand-lockup--micro>span>span {
   transform: translateX(5px);
 }
 
-/* Animation de balayage de sortie de la droite vers la gauche */
-.home-page.page-exit-left {
+.home-page.page-exit-fade {
   overflow: hidden !important;
   pointer-events: none !important;
 }
 
-.home-page.page-exit-left main,
-.home-page.page-exit-left .network-background {
-  animation: pageSweepOutLeft 0.72s cubic-bezier(0.55, 0, 0.15, 1) forwards;
-  will-change: transform;
+.home-page.page-exit-fade main,
+.home-page.page-exit-fade .network-background {
+  animation: pageFadeOut 0.42s ease forwards;
+  will-change: opacity;
 }
 
-@keyframes pageSweepOutLeft {
+@keyframes pageFadeOut {
   0% {
-    transform: translate3d(0, 0, 0);
+    opacity: 1;
   }
   100% {
-    transform: translate3d(calc(-100vw - 4rem), 0, 0);
+    opacity: 0;
   }
 }
 
@@ -1060,17 +1057,17 @@ html[data-theme="light"] .brand-lockup--micro>span>span {
 }
 
 .home-theme-toggle {
-  position: absolute;
+  position: fixed;
   top: 1.25rem;
-  left: 50%;
+  right: 1.25rem;
   z-index: 10;
-  transform: translateX(-50%);
 }
 
 .auth-theme-toggle {
   position: absolute;
   top: 1.25rem;
   right: max(1.25rem, calc((100vw - 64rem) / 2));
+  z-index: 10;
 }
 
 html[data-theme="light"] .home-hero__glow {
@@ -1159,6 +1156,11 @@ html[data-theme="light"] .status-dot {
 }
 
 @media (max-width: 767px) {
+  .home-theme-toggle {
+    top: 0.75rem;
+    right: 0.85rem;
+  }
+
   .home-header {
     top: 0.85rem;
     width: calc(100% - 2rem);
@@ -1591,6 +1593,129 @@ html[data-theme="light"] .status-dot {
     padding: 0.65rem 0.85rem;
     font-size: 0.76rem;
   }
+
+  .hero-stage--mobile-flow .hero-stage__inner {
+    min-height: min(64svh, 31rem);
+  }
+
+  .home-footnote {
+    display: none;
+  }
+
+  .hero-stage--mobile-flow .hero-mobile-brand {
+    position: absolute;
+    top: 8%;
+    left: 50%;
+    width: min(48vw, 12rem);
+    height: 9rem;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+    overflow: visible;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateX(-50%);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    transition: top 700ms cubic-bezier(0.16, 1, 0.3, 1), opacity 550ms ease, transform 700ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .hero-stage--mobile-flow .hero-mobile-brand::before {
+    display: none;
+  }
+
+  .hero-stage--mobile-flow .hero-mobile-brand__logo {
+    animation: none;
+  }
+
+  .hero-stage--mobile-flow .hero-mobile-brand__logo--paypal {
+    display: none;
+  }
+
+  .hero-stage--mobile-flow .hero-mobile-brand__logo--micro {
+    opacity: 0;
+  }
+
+  .hero-stage--mobile-flow.hero-stage--mobile-logo .hero-mobile-brand,
+  .hero-stage--mobile-flow.hero-stage--final .hero-mobile-brand {
+    top: calc(50% - 0.75rem);
+    opacity: 1;
+    visibility: visible;
+    transform: translate(-50%, -50%);
+  }
+
+  .hero-stage--mobile-flow.hero-stage--final .hero-mobile-brand {
+    top: 25%;
+    transform: translateX(-50%);
+  }
+
+  .hero-stage--mobile-flow.hero-stage--mobile-logo .hero-mobile-brand__logo--micro,
+  .hero-stage--mobile-flow.hero-stage--final .hero-mobile-brand__logo--micro {
+    opacity: 1;
+  }
+
+  .hero-stage--mobile-flow.hero-stage--mobile-logo .hero-mobile-brand__logo--micro img,
+  .hero-stage--mobile-flow.hero-stage--final .hero-mobile-brand__logo--micro img {
+    width: min(48vw, 12rem);
+  }
+
+  .hero-stage--mobile-flow.hero-stage--mobile-logo .hero-center,
+  .hero-stage--mobile-flow.hero-stage--final .hero-center {
+    display: none;
+  }
+
+  .hero-stage--mobile-flow.hero-stage--welcome .hero-center {
+    top: calc(50% - 1.125rem);
+    right: auto;
+    left: 50%;
+    width: 100%;
+    transform: translate(-50%, -50%);
+  }
+
+  .hero-stage--mobile-flow.hero-stage--welcome .hero-brand .hero-welcome {
+    font-size: clamp(1.7rem, 7vw, 2.1rem);
+    text-align: center;
+  }
+
+  .hero-stage--mobile-flow.hero-stage--payment:not(.hero-stage--final) .hero-payment {
+    top: calc(50% - 0.6rem);
+    right: auto;
+    left: 50%;
+    width: min(100%, 16rem);
+    height: 12rem;
+    transform: translate(-50%, -50%);
+  }
+
+  .hero-stage--mobile-flow.hero-stage--final .hero-payment {
+    top: 65% !important;
+    right: auto;
+    left: 50%;
+    width: 100%;
+    height: 4.5rem;
+    opacity: 1;
+    visibility: visible;
+    transform: translate(-50%, -50%) !important;
+  }
+
+  .hero-stage--mobile-flow.hero-stage--mobile-logo:not(.hero-stage--final) .hero-payment {
+    opacity: 0;
+    visibility: hidden;
+  }
+
+  .hero-stage--mobile-flow.hero-stage--final .hero-payment__status,
+  .hero-stage--mobile-flow.hero-stage--final .hero-payment__qr,
+  .hero-stage--mobile-flow.hero-stage--final .hero-payment__bank-card,
+  .hero-stage--mobile-flow.hero-stage--final .hero-payment__confirmation {
+    opacity: 0;
+    visibility: hidden;
+  }
+
+  .hero-stage--mobile-flow.hero-stage--final .hero-final-cta {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
 }
 
 @media (max-width: 360px) {
@@ -1611,9 +1736,9 @@ html[data-theme="light"] .status-dot {
 
   .hero-stage--welcome .hero-welcome__prefix {
     animation: none;
-    clip-path: none;
     opacity: 1;
     transform: none;
+    filter: none;
   }
 
   .hero-stage--welcome .hero-welcome strong {
@@ -1714,19 +1839,149 @@ html[data-theme="light"] .status-dot {
   padding: 5rem 1rem 2rem;
 }
 
+.auth-shell {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  width: min(66rem, 100%);
+  min-height: 32rem;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: stretch;
+  overflow: hidden;
+  border: 1px solid var(--line-strong);
+  border-radius: 1.5rem;
+  background: var(--surface-strong);
+  box-shadow: var(--card-shadow);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.auth-page--login {
+  padding-right: max(1.5rem, calc((100vw - 74rem) / 2));
+  padding-left: max(1.5rem, calc((100vw - 74rem) / 2));
+}
+
+.auth-page--signup {
+  padding-top: 4rem;
+  padding-bottom: 1rem;
+}
+
+.auth-page--signup .auth-card {
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+}
+
+.auth-shell .auth-card {
+  width: 100%;
+  max-width: none;
+  align-self: stretch;
+  justify-self: stretch;
+  padding: clamp(2rem, 4vw, 3.5rem);
+  border: 0;
+  border-left: 1px solid var(--line);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.auth-visual {
+  position: relative;
+  display: grid;
+  min-width: 0;
+  min-height: 36rem;
+  align-content: center;
+  justify-items: center;
+  gap: 1.4rem;
+  overflow: hidden;
+  padding: clamp(1.5rem, 3vw, 2.5rem);
+  background:
+    radial-gradient(ellipse at 50% 40%, rgba(229, 50, 59, 0.16), transparent 55%),
+    transparent;
+  text-align: center;
+}
+
+.auth-visual__copy {
+  position: relative;
+  z-index: 1;
+}
+
+.auth-visual__eyebrow {
+  color: var(--text-muted);
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+}
+
+.auth-visual__copy h2 {
+  margin: 0.65rem 0 0;
+  color: var(--text);
+  font-size: clamp(1.65rem, 3vw, 2.35rem);
+  letter-spacing: -0.06em;
+  line-height: 1.1;
+}
+
+.auth-visual__copy h2 span {
+  color: var(--text-soft);
+}
+
+.auth-visual__copy p {
+  margin: 0.65rem 0 0;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+}
+
+.auth-visual .workspace-card-stage {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 26rem);
+  min-height: 15rem;
+}
+
+.auth-visual .workspace-card-scene {
+  max-width: 260px;
+}
+
+.auth-visual .workspace-card-hint {
+  margin-top: 0.3rem;
+  font-size: 0.7rem;
+}
+
 .auth-back {
   position: absolute;
+  display: inline-flex;
   top: 1.5rem;
   left: max(1.25rem, calc((100vw - 64rem) / 2));
+  min-height: 2.5rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 0.55rem 0.9rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 9999px;
+  background: var(--surface);
   color: var(--text-soft);
   font-size: 0.88rem;
   font-weight: 600;
   text-decoration: none;
+  backdrop-filter: blur(12px);
+  transition: background 180ms ease, color 180ms ease, transform 180ms ease;
 }
 
 .auth-back:hover,
 .auth-switch a:hover {
   color: var(--text);
+}
+
+.auth-back:hover {
+  background: var(--surface-strong);
+  transform: translateY(-1px);
+}
+
+.auth-back:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
 }
 
 .auth-card {
@@ -1738,24 +1993,6 @@ html[data-theme="light"] .status-dot {
   box-shadow: var(--card-shadow);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-}
-
-.auth-brand {
-  color: var(--text);
-  font-family: "Syne", system-ui, sans-serif;
-  font-size: 1.25rem;
-  font-weight: 800;
-  letter-spacing: -0.05em;
-  text-decoration: none;
-}
-
-.auth-eyebrow {
-  margin: 2rem 0 0.5rem;
-  color: var(--text-muted);
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.13em;
-  text-transform: uppercase;
 }
 
 .auth-card h1 {
@@ -1798,7 +2035,14 @@ html[data-theme="light"] .status-dot {
 .auth-form .home-button {
   width: 100%;
   margin-top: 0.8rem;
+  border: 1px solid var(--button-primary);
+  background: var(--button-primary);
+  color: var(--button-primary-text);
   cursor: pointer;
+}
+
+.auth-form .home-button:hover:not(:disabled) {
+  background: var(--button-primary-hover);
 }
 
 .auth-form .home-button:disabled {
@@ -1834,6 +2078,27 @@ html[data-theme="light"] .status-dot {
     padding: 4.25rem 1rem 1.25rem;
   }
 
+  .auth-page--login {
+    padding-right: 1rem;
+    padding-left: 1rem;
+  }
+
+  .auth-shell {
+    width: min(100%, 22rem);
+    min-height: auto;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .auth-visual {
+    display: none;
+  }
+
+  .auth-shell .auth-card {
+    padding: 1.5rem 1.25rem;
+    border-top: 0;
+    border-left: 0;
+  }
+
   .auth-back {
     top: 1rem;
     left: 0.85rem;
@@ -1848,15 +2113,6 @@ html[data-theme="light"] .status-dot {
     width: min(100%, 22rem);
     padding: 1.2rem 1.15rem;
     border-radius: 1.15rem;
-  }
-
-  .auth-page--login .auth-eyebrow {
-    margin-top: 0;
-  }
-
-  .auth-eyebrow {
-    margin-top: 1.25rem;
-    margin-bottom: 0.4rem;
   }
 
   .auth-card h1 {

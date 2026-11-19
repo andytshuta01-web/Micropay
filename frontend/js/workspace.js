@@ -8,8 +8,12 @@ import {
   rejectRequest,
   runMission,
 } from './api.js';
+import { setupRotatingDemoCard } from './demo-card.js';
+
+await window.microPayAuthReady;
 
 const $ = (selector) => document.querySelector(selector);
+const currentLocale = () => window.microPayI18n?.locale || 'fr-FR';
 const escapeHtml = (value) => String(value ?? '').replace(/[&<>"']/g, (char) => ({
   '&': '&amp;',
   '<': '&lt;',
@@ -20,7 +24,7 @@ const escapeHtml = (value) => String(value ?? '').replace(/[&<>"']/g, (char) => 
 const money = (amount) => `$${Number(amount || 0).toFixed(2)}`;
 const dateTime = (date) => {
   const parsed = new Date(date);
-  return Number.isNaN(parsed.getTime()) ? 'Date inconnue' : parsed.toLocaleString('fr-FR');
+  return Number.isNaN(parsed.getTime()) ? 'Date inconnue' : parsed.toLocaleString(currentLocale());
 };
 const STATUS_LABELS = {
   created: 'Créée',
@@ -158,12 +162,35 @@ function renderStats() {
   const pending = requests.filter((request) => getTransactionStatus(request) === 'pending_approval');
   const budgetTotal = missions.reduce((sum, mission) => sum + Number(mission.budgetTotal || 0), 0);
   const spent = executed.reduce((sum, request) => sum + Number(request.amount || 0), 0);
+  const available = Math.max(0, budgetTotal - spent);
+  const budgetUsed = budgetTotal > 0 ? Math.min(100, Math.max(0, (spent / budgetTotal) * 100)) : 0;
+  const budgetUsedPercent = Math.round(budgetUsed);
 
   $('#totalBudget').textContent = money(budgetTotal);
   $('#totalSpent').textContent = money(spent);
   $('#executedCount').textContent = `${executed.length} paiement${executed.length === 1 ? '' : 's'}`;
   $('#pendingCount').textContent = pending.length;
   $('#missionCount').textContent = missions.length;
+  $('#expenseAnalysisChart').style.setProperty('--budget-used', `${budgetUsed}%`);
+  $('#expenseAnalysisChart').setAttribute(
+    'aria-label',
+    `Budget utilisé : ${budgetUsedPercent} %. Dépensé : ${money(spent)}. Disponible : ${money(available)}.`,
+  );
+  $('#expenseAnalysisPercent').textContent = `${budgetUsedPercent}%`;
+  $('#expenseAnalysisSpent').textContent = money(spent);
+  $('#expenseAnalysisAvailable').textContent = money(available);
+}
+
+function renderWorkspaceClock() {
+  const now = new Date();
+  const time = $('#workspaceClockTime');
+  const date = $('#workspaceClockDate');
+  if (!time || !date) return;
+
+  time.textContent = now.toLocaleTimeString(currentLocale(), { hour: '2-digit', minute: '2-digit' });
+  time.dateTime = now.toISOString();
+  date.textContent = now.toLocaleDateString(currentLocale(), { weekday: 'long', day: 'numeric', month: 'long' });
+  date.dateTime = now.toISOString().slice(0, 10);
 }
 
 function renderPaymentFlow() {
@@ -195,8 +222,8 @@ function renderPaymentFlow() {
     return `${x.toFixed(2)},${y.toFixed(2)}`;
   }).join(' ');
   const labels = flowPeriod === 7
-    ? buckets.map((bucket) => bucket.date.toLocaleDateString('fr-FR', { weekday: 'short' }))
-    : [0, 9, 19, 29].map((index) => buckets[index].date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }));
+    ? buckets.map((bucket) => bucket.date.toLocaleDateString(currentLocale(), { weekday: 'short' }))
+    : [0, 9, 19, 29].map((index) => buckets[index].date.toLocaleDateString(currentLocale(), { day: 'numeric', month: 'short' }));
   const labelIndexes = flowPeriod === 7 ? buckets.map((_, index) => index) : [0, 9, 19, 29];
 
   $('#flowTotal').textContent = money(total);
@@ -224,10 +251,17 @@ function renderPaymentFlow() {
   `;
 }
 
+document.addEventListener('micropay:languagechange', () => {
+  renderPaymentFlow();
+  renderWorkspaceClock();
+});
+renderWorkspaceClock();
+window.setInterval(renderWorkspaceClock, 15_000);
+
 function renderRecentPayments() {
   const recent = [...requests]
     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-    .slice(0, 5);
+    .slice(0, 3);
   $('#recentPayments').innerHTML = recent.length
     ? recent.map((request) => requestCard(request, false)).join('')
     : '<p class="empty-message">Aucun paiement pour le moment. Les demandes de vos agents apparaîtront ici.</p>';
@@ -240,7 +274,10 @@ function renderMissions() {
     return;
   }
 
-  target.innerHTML = missions.map((mission) => {
+  const recent = [...missions]
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    .slice(0, 3);
+  target.innerHTML = recent.map((mission) => {
     const spent = Number(mission.budgetTotal) - Number(mission.budgetRemaining);
     const currentRequests = mission.requests || [];
     return `
@@ -265,6 +302,33 @@ function renderPending() {
   const panel = $('#pendingPanel');
   panel.hidden = !pending.length;
   $('#pendingRequests').innerHTML = pending.map((request) => requestCard(request)).join('');
+}
+
+function renderNotifications() {
+  const pending = requests
+    .filter((request) => getTransactionStatus(request) === 'pending_approval')
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  const count = $('#notificationCount');
+  count.hidden = !pending.length;
+  count.textContent = pending.length > 99 ? '99+' : String(pending.length);
+  $('#notificationsButton').setAttribute(
+    'aria-label',
+    pending.length
+      ? `Notifications, ${pending.length} demande${pending.length === 1 ? '' : 's'} à valider`
+      : 'Notifications',
+  );
+  $('#notificationsList').innerHTML = pending.length
+    ? pending.slice(0, 10).map((request) => `
+      <button class="workspace-notification" type="button" data-open-purchase="${escapeHtml(request.id)}">
+        <span class="workspace-notification__icon"><i class="fa-solid fa-clock" aria-hidden="true"></i></span>
+        <span class="workspace-notification__copy">
+          <strong>Demande à valider</strong>
+          <small>${escapeHtml(request.resourceTitle || 'Achat')}</small>
+        </span>
+        <span class="workspace-notification__amount">${money(request.amount)}</span>
+      </button>
+    `).join('')
+    : '<p class="workspace-notifications__empty">Aucune demande à valider.</p>';
 }
 
 function renderInvoices() {
@@ -309,6 +373,7 @@ function render() {
   renderRecentPayments();
   renderMissions();
   renderPending();
+  renderNotifications();
   renderInvoices();
   renderPurchases();
 }
@@ -444,16 +509,20 @@ async function restoreLatestConversation() {
 }
 
 async function checkBackend() {
-  const indicator = $('#backendIndicator');
-  const label = $('#backendStatus');
+  const indicators = document.querySelectorAll('[data-backend-indicator]');
+  const labels = document.querySelectorAll('[data-backend-status]');
   try {
     const response = await fetch('/api/health');
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    indicator.classList.add('is-online');
-    label.textContent = 'Serveur connecté';
+    indicators.forEach((indicator) => indicator.classList.add('is-online'));
+    labels.forEach((label) => {
+      label.textContent = 'Serveur connecté';
+    });
   } catch {
-    indicator.classList.remove('is-online');
-    label.textContent = 'Serveur hors ligne';
+    indicators.forEach((indicator) => indicator.classList.remove('is-online'));
+    labels.forEach((label) => {
+      label.textContent = 'Serveur hors ligne';
+    });
   }
 }
 
@@ -496,13 +565,36 @@ function printReceipt(requestId) {
   printable.setAttribute('aria-hidden', 'true');
 }
 
-$('#refreshButton').addEventListener('click', async () => {
-  clearError();
-  try {
-    await loadOverview();
-    await checkBackend();
-  } catch (error) {
-    showError(error.message);
+const notificationsButton = $('#notificationsButton');
+const notificationsPanel = $('#notificationsPanel');
+
+function setNotificationsOpen(open) {
+  notificationsPanel.hidden = !open;
+  notificationsButton.setAttribute('aria-expanded', String(open));
+}
+
+notificationsButton.addEventListener('click', () => {
+  setNotificationsOpen(notificationsPanel.hidden);
+});
+
+notificationsPanel.addEventListener('click', (event) => {
+  if (event.target.closest('[data-view]')) setNotificationsOpen(false);
+});
+
+document.addEventListener('click', (event) => {
+  const closeButton = event.target.closest('[data-notifications-close]');
+  if (closeButton) {
+    setNotificationsOpen(false);
+    notificationsButton.focus();
+  } else if (!event.target.closest('.workspace-notifications')) {
+    setNotificationsOpen(false);
+  }
+});
+
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape' && !notificationsPanel.hidden) {
+    setNotificationsOpen(false);
+    notificationsButton.focus();
   }
 });
 
@@ -535,9 +627,12 @@ function setupVoiceInput() {
   }
 
   const recognition = new SpeechRecognition();
-  recognition.lang = 'fr-FR';
+  recognition.lang = window.microPayI18n?.speechLanguage || 'fr-FR';
   recognition.continuous = false;
   recognition.interimResults = true;
+  document.addEventListener('micropay:languagechange', (event) => {
+    recognition.lang = event.detail.language === 'en' ? 'en-US' : 'fr-FR';
+  });
 
   let baseText = '';
   let hasResult = false;
@@ -551,7 +646,7 @@ function setupVoiceInput() {
     voiceButton.setAttribute('aria-pressed', 'true');
     voiceButton.setAttribute('aria-label', 'Arrêter la dictée vocale');
     voiceButton.title = 'Arrêter la dictée vocale';
-    voiceIcon.textContent = 'stop_circle';
+    voiceIcon.classList.replace('fa-microphone', 'fa-circle-stop');
     sendButton.disabled = true;
     announce('Dictée en cours. Parlez maintenant.');
   };
@@ -594,7 +689,7 @@ function setupVoiceInput() {
     voiceButton.setAttribute('aria-pressed', 'false');
     voiceButton.setAttribute('aria-label', 'Décrire la mission à la voix');
     voiceButton.title = 'Décrire la mission à la voix';
-    voiceIcon.textContent = 'mic';
+    voiceIcon.classList.replace('fa-circle-stop', 'fa-microphone');
     sendButton.disabled = false;
 
     if (!hasError) {
@@ -702,6 +797,7 @@ document.addEventListener('click', async (event) => {
     return;
   }
   if (purchaseButton) {
+    setNotificationsOpen(false);
     setView('purchases');
     document.getElementById(`request-${CSS.escape(purchaseButton.dataset.openPurchase)}`)
       ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -758,39 +854,6 @@ function setupRotatingCarousel(containerSelector, itemSelector, interval) {
 
   const timer = window.setInterval(showNextSlide, interval);
   return () => window.clearInterval(timer);
-}
-
-function setupRotatingDemoCard(cardSelector, interval) {
-  const card = $(cardSelector);
-  if (!card) return () => {};
-
-  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  let flipped = false;
-  let timer;
-
-  function flipCard() {
-    flipped = !flipped;
-    card.classList.toggle('is-flipped', flipped);
-    card.setAttribute('aria-pressed', String(flipped));
-  }
-
-  function restartTimer() {
-    if (timer !== undefined) window.clearInterval(timer);
-    if (!prefersReducedMotion) timer = window.setInterval(flipCard, interval);
-  }
-
-  function handleCardClick() {
-    flipCard();
-    restartTimer();
-  }
-
-  card.addEventListener('click', handleCardClick);
-  restartTimer();
-
-  return () => {
-    if (timer !== undefined) window.clearInterval(timer);
-    card.removeEventListener('click', handleCardClick);
-  };
 }
 
 function setupMissionNetwork() {
@@ -875,7 +938,8 @@ const stopStatsCarousel = setupRotatingCarousel(
   '[data-stat-slide]',
   4500,
 );
-const stopDemoCard = setupRotatingDemoCard('#workspaceDemoCard', 4000);
+const stopDemoCard = setupRotatingDemoCard($('#workspaceDemoCard'), 4000);
+const stopPromoDemoCard = setupRotatingDemoCard($('#workspacePromoDemoCard'), 4000);
 setupMissionNetwork();
 
 await checkBackend();
@@ -902,4 +966,5 @@ window.addEventListener('beforeunload', () => {
   stopPromoCarousel();
   stopStatsCarousel();
   stopDemoCard();
+  stopPromoDemoCard();
 });

@@ -8,6 +8,21 @@ import { runAgentLoop } from '../agent.js';
 import { config } from '../config.js';
 
 export const missionsRouter = Router();
+missionsRouter.use((req, res, next) => {
+  if (!req.user) return res.status(401).json({ error: 'Veuillez vous connecter pour continuer.' });
+  return next();
+});
+
+function getOwnedMission(db, missionId, userId) {
+  const mission = db.missions[missionId];
+  return mission?.userId === userId ? mission : null;
+}
+
+function getOwnedRequest(db, requestId, userId) {
+  const request = db.requests[requestId];
+  const mission = request && getOwnedMission(db, request.missionId, userId);
+  return mission ? { request, mission } : null;
+}
 
 function parseNumericInput(value, fallback) {
   const candidate = value ?? fallback;
@@ -63,6 +78,7 @@ missionsRouter.post('/', (req, res) => {
 
   db.missions[id] = {
     id,
+    userId: req.user.id,
     objective: objective.trim(),
     budgetTotal: parsedBudget,
     budgetRemaining: parsedBudget,
@@ -88,6 +104,7 @@ missionsRouter.get('/', (req, res) => {
   const db = getDb();
   res.json(
     Object.values(db.missions)
+      .filter((mission) => mission.userId === req.user.id)
       .sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1)),
   );
 });
@@ -95,6 +112,7 @@ missionsRouter.get('/', (req, res) => {
 missionsRouter.get('/overview', (req, res) => {
   const db = getDb();
   const missions = Object.values(db.missions)
+    .filter((mission) => mission.userId === req.user.id)
     .sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1))
     .map((mission) => ({
       ...mission,
@@ -108,7 +126,7 @@ missionsRouter.get('/overview', (req, res) => {
 
 missionsRouter.get('/:id', (req, res) => {
   const db = getDb();
-  const mission = db.missions[req.params.id];
+  const mission = getOwnedMission(db, req.params.id, req.user.id);
   if (!mission) return res.status(404).json({ error: 'Mission introuvable.' });
 
   const requests = Object.values(db.requests).filter((r) => r.missionId === mission.id);
@@ -123,7 +141,7 @@ missionsRouter.get('/:id', (req, res) => {
 // --- Lance la boucle de l'agent sur une mission ---
 missionsRouter.post('/:id/run', (req, res) => {
   const db = getDb();
-  const mission = db.missions[req.params.id];
+  const mission = getOwnedMission(db, req.params.id, req.user.id);
   const policy = db.policies[req.params.id];
   if (!mission || !policy) {
     return res.status(404).json({ error: 'Mission introuvable.' });
@@ -279,11 +297,11 @@ missionsRouter.post('/:id/run', (req, res) => {
 // --- Validation manuelle d'une demande en attente ---
 missionsRouter.post('/requests/:requestId/approve', async (req, res) => {
   const db = getDb();
-  const request = db.requests[req.params.requestId];
-  const mission = request && db.missions[request.missionId];
-  if (!request || !mission) {
+  const owned = getOwnedRequest(db, req.params.requestId, req.user.id);
+  if (!owned) {
     return res.status(404).json({ error: 'Demande introuvable.' });
   }
+  const { request, mission } = owned;
   if (request.transaction?.status !== 'pending_approval') {
     return res.status(400).json({ error: 'Cette demande ne peut plus être approuvée.' });
   }
@@ -379,11 +397,11 @@ missionsRouter.post('/requests/:requestId/approve', async (req, res) => {
 
 missionsRouter.get('/requests/:requestId/status', async (req, res) => {
   const db = getDb();
-  const request = db.requests[req.params.requestId];
-  const mission = request && db.missions[request.missionId];
-  if (!request || !mission) {
+  const owned = getOwnedRequest(db, req.params.requestId, req.user.id);
+  if (!owned) {
     return res.status(404).json({ error: 'Demande introuvable.' });
   }
+  const { request, mission } = owned;
   if (request.transaction?.status !== 'processing') {
     return res.json({ request, mission });
   }
@@ -435,11 +453,11 @@ missionsRouter.get('/requests/:requestId/status', async (req, res) => {
 
 missionsRouter.post('/requests/:requestId/reject', (req, res) => {
   const db = getDb();
-  const request = db.requests[req.params.requestId];
-  const mission = request && db.missions[request.missionId];
-  if (!request || !mission) {
+  const owned = getOwnedRequest(db, req.params.requestId, req.user.id);
+  if (!owned) {
     return res.status(404).json({ error: 'Demande introuvable.' });
   }
+  const { request, mission } = owned;
   if (request.transaction?.status !== 'pending_approval') {
     return res.status(400).json({ error: 'Cette demande ne peut plus être refusée.' });
   }

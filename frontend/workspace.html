@@ -5,13 +5,33 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#111111" />
   <title>MicroPay — Espace de contrôle</title>
+  <script>
+    document.documentElement.classList.add('auth-pending');
+    window.microPayAuthReady = fetch('/api/auth/me')
+      .then(async function (response) {
+        if (response.status === 401) {
+          window.location.replace('login.html?next=workspace.html');
+          return null;
+        }
+        if (!response.ok) throw new Error('Impossible de vérifier la session MicroPay.');
+        return (await response.json()).user;
+      })
+      .then(function (user) {
+        if (user) document.documentElement.classList.remove('auth-pending');
+        return user;
+      })
+      .catch(function () {
+        document.documentElement.classList.remove('auth-pending');
+        return null;
+      });
+  </script>
   <script src="js/theme-init.js"></script>
   <script>
     (function () {
       try {
         if (location.search.includes('from=home') || sessionStorage.getItem('micropay-transition') === 'from-home') {
           sessionStorage.removeItem('micropay-transition');
-          document.documentElement.classList.add('page-enter-left');
+          document.documentElement.classList.add('page-enter-fade');
         }
       } catch (e) {}
     }());
@@ -19,7 +39,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Syne:wght@500;600;700;800&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400,0,0" rel="stylesheet">
+  <link rel="stylesheet" href="assets/fontawesome/css/all.min.css">
   <link rel="stylesheet" href="css/theme.css">
   <link rel="stylesheet" href="css/workspace.css">
 </head>
@@ -34,36 +54,36 @@
       </a>
       <nav class="sidebar-rail__navigation" aria-label="Accès rapides">
         <a class="sidebar-rail__link" href="index.html" aria-label="Accueil" title="Accueil">
-          <span class="google-icon" aria-hidden="true">home</span>
+          <i class="ui-icon fa-solid fa-house" aria-hidden="true"></i>
         </a>
         <button class="sidebar-rail__link" type="button" data-view="dashboard" aria-label="Vue d'ensemble" title="Vue d'ensemble">
-          <span class="google-icon" aria-hidden="true">dashboard</span>
+          <i class="ui-icon fa-solid fa-gauge-high" aria-hidden="true"></i>
         </button>
         <button class="sidebar-rail__link" type="button" data-view="create" aria-label="Nouvelle mission" title="Nouvelle mission">
-          <span class="google-icon" aria-hidden="true">add_circle</span>
+          <i class="ui-icon fa-solid fa-circle-plus" aria-hidden="true"></i>
         </button>
         <button class="sidebar-rail__link" type="button" data-view="invoices" aria-label="Reçus" title="Reçus">
-          <span class="google-icon" aria-hidden="true">receipt_long</span>
+          <i class="ui-icon fa-solid fa-receipt" aria-hidden="true"></i>
         </button>
         <button class="sidebar-rail__link" type="button" data-view="purchases" aria-label="Paiements" title="Paiements">
-          <span class="google-icon" aria-hidden="true">payments</span>
+          <i class="ui-icon fa-solid fa-money-bill-wave" aria-hidden="true"></i>
         </button>
         <button class="sidebar-rail__link" type="button" data-view="settings" aria-label="Paramètres" title="Paramètres">
-          <span class="google-icon" aria-hidden="true">settings</span>
+          <i class="ui-icon fa-solid fa-gear" aria-hidden="true"></i>
         </button>
         <button class="sidebar-rail__link" type="button" data-view="help" aria-label="Centre d'aide" title="Centre d'aide">
-          <span class="google-icon" aria-hidden="true">help</span>
+          <i class="ui-icon fa-solid fa-circle-question" aria-hidden="true"></i>
         </button>
       </nav>
       <div class="sidebar-rail__bottom">
         <button class="theme-toggle" type="button" data-theme-toggle aria-label="Changer le thème" title="Changer le thème"></button>
         <button class="sidebar-toggle" id="sidebarToggle" data-sidebar-toggle type="button" aria-label="Réduire le menu" aria-expanded="true" aria-controls="workspaceSidebar" title="Réduire le menu">
-          <span class="google-icon" id="sidebarToggleIcon" aria-hidden="true">menu_open</span>
+          <i class="ui-icon fa-solid fa-angles-left" id="sidebarToggleIcon" aria-hidden="true"></i>
         </button>
       </div>
     </div>
 
-    <div class="sidebar-panel">
+    <div class="sidebar-panel" id="workspaceSidebarPanel" role="region" aria-label="Menu Plus">
       <div class="sidebar-header">
         <a class="workspace-brand" href="index.html" aria-label="MicroPay, accueil">
           <img src="assets/micropay-logo.png" alt="">
@@ -73,27 +93,30 @@
           </span>
         </a>
         <button class="sidebar-toggle" id="sidebarTogglePanel" data-sidebar-toggle type="button" aria-label="Réduire le menu" aria-expanded="true" aria-controls="workspaceSidebar" title="Réduire le menu">
-          <span class="google-icon" id="sidebarTogglePanelIcon" aria-hidden="true">menu_open</span>
+          <i class="ui-icon fa-solid fa-angles-left" id="sidebarTogglePanelIcon" aria-hidden="true"></i>
+        </button>
+        <button class="sidebar-toggle mobile-menu-close" type="button" data-mobile-menu-close aria-label="Fermer le menu">
+          <i class="ui-icon fa-solid fa-xmark" aria-hidden="true"></i>
         </button>
       </div>
 
       <span class="sidebar-group-label">MENU PRINCIPAL</span>
       <nav class="sidebar-navigation" aria-label="Navigation principale">
         <button class="sidebar-link" type="button" data-view="dashboard" aria-label="Vue d'ensemble">
-          <span class="sidebar-link__icon google-icon" aria-hidden="true">dashboard</span>
+          <i class="sidebar-link__icon ui-icon fa-solid fa-gauge-high" aria-hidden="true"></i>
           <span class="sidebar-link__label">Vue d'ensemble</span>
         </button>
         <button class="sidebar-link" type="button" data-view="create" aria-label="Créer une mission">
-          <span class="sidebar-link__icon google-icon" aria-hidden="true">add_circle</span>
+          <i class="sidebar-link__icon ui-icon fa-solid fa-circle-plus" aria-hidden="true"></i>
           <span class="sidebar-link__label">Nouvelle mission</span>
         </button>
         <button class="sidebar-link" type="button" data-view="purchases" aria-label="Paiements">
-          <span class="sidebar-link__icon google-icon" aria-hidden="true">payments</span>
+          <i class="sidebar-link__icon ui-icon fa-solid fa-money-bill-wave" aria-hidden="true"></i>
           <span class="sidebar-link__label">Paiements</span>
           <span class="sidebar-count" id="purchaseNavCount">0</span>
         </button>
         <button class="sidebar-link" type="button" data-view="invoices" aria-label="Reçus">
-          <span class="sidebar-link__icon google-icon" aria-hidden="true">receipt_long</span>
+          <i class="sidebar-link__icon ui-icon fa-solid fa-receipt" aria-hidden="true"></i>
           <span class="sidebar-link__label">Reçus</span>
           <span class="sidebar-count" id="invoiceCount">0</span>
         </button>
@@ -101,7 +124,7 @@
 
       <div class="sidebar-section">
         <button class="sidebar-section__heading" type="button" data-view="purchases" aria-label="Paiements récents">
-          <span class="sidebar-section__icon google-icon" aria-hidden="true">shopping_bag</span>
+          <i class="sidebar-section__icon ui-icon fa-solid fa-bag-shopping" aria-hidden="true"></i>
           <span class="sidebar-section__label">Paiements récents</span>
           <span id="purchaseCount">0</span>
         </button>
@@ -112,33 +135,72 @@
 
       <div class="sidebar-bottom">
         <nav class="sidebar-utility-navigation" aria-label="Aide et paramètres">
-          <button class="sidebar-link" type="button" data-view="settings" aria-label="Paramètres">
-            <span class="sidebar-link__icon google-icon" aria-hidden="true">settings</span>
-            <span class="sidebar-link__label">Paramètres</span>
-          </button>
           <button class="sidebar-link" type="button" data-view="help" aria-label="Centre d'aide">
-            <span class="sidebar-link__icon google-icon" aria-hidden="true">help</span>
+            <i class="sidebar-link__icon ui-icon fa-solid fa-circle-question" aria-hidden="true"></i>
             <span class="sidebar-link__label">Centre d'aide</span>
           </button>
+          <button class="sidebar-link" type="button" data-view="settings" aria-label="Paramètres">
+            <i class="sidebar-link__icon ui-icon fa-solid fa-gear" aria-hidden="true"></i>
+            <span class="sidebar-link__label">Paramètres</span>
+          </button>
         </nav>
-        <div class="sidebar-status">
-          <span class="status-indicator" id="backendIndicator"></span>
-          <span id="backendStatus">Connexion au serveur…</span>
-        </div>
+        <button class="app-logout" id="logoutButton" data-logout-button data-logout-status="logoutStatus" type="button">Se déconnecter</button>
+        <span class="sidebar-empty" id="logoutStatus" role="status" aria-live="polite"></span>
         <button class="theme-toggle" type="button" data-theme-toggle aria-label="Changer le thème" title="Changer le thème"></button>
       </div>
     </div>
   </aside>
+
+  <button class="mobile-menu-scrim" type="button" data-mobile-menu-close aria-label="Fermer le menu" hidden></button>
+  <nav class="mobile-bottom-navigation" aria-label="Navigation principale">
+    <button class="mobile-bottom-navigation__item" type="button" data-view="dashboard" aria-label="Vue d'ensemble">
+      <i class="ui-icon fa-solid fa-gauge-high" aria-hidden="true"></i>
+      <span>Vue d'ensemble</span>
+    </button>
+    <button class="mobile-bottom-navigation__item" type="button" data-view="create" aria-label="Nouvelle mission">
+      <i class="ui-icon fa-solid fa-circle-plus" aria-hidden="true"></i>
+      <span>Nouvelle mission</span>
+    </button>
+    <button class="mobile-bottom-navigation__item" type="button" data-view="purchases" aria-label="Paiements">
+      <i class="ui-icon fa-solid fa-money-bill-wave" aria-hidden="true"></i>
+      <span>Paiements</span>
+    </button>
+    <button class="mobile-bottom-navigation__item" type="button" data-view="invoices" aria-label="Reçus">
+      <i class="ui-icon fa-solid fa-receipt" aria-hidden="true"></i>
+      <span>Reçus</span>
+    </button>
+    <button class="mobile-bottom-navigation__item mobile-bottom-navigation__more" type="button" data-mobile-menu-toggle aria-expanded="false" aria-controls="workspaceSidebarPanel" aria-label="Plus">
+      <i class="ui-icon fa-solid fa-bars" aria-hidden="true"></i>
+      <span>Plus</span>
+    </button>
+  </nav>
+  <button class="mobile-create-back" type="button" data-view="dashboard" aria-label="Retour à la vue d'ensemble">
+    <i class="ui-icon fa-solid fa-arrow-left" aria-hidden="true"></i>
+  </button>
 
   <main class="workspace-main">
     <header class="workspace-topbar">
       <div>
         <h1 id="pageTitle">Vue d'ensemble</h1>
       </div>
-      <button class="workspace-refresh" id="refreshButton" type="button">
-        <span class="google-icon" aria-hidden="true">refresh</span>
-        Actualiser
-      </button>
+      <div class="workspace-notifications">
+        <button class="workspace-notifications__button" id="notificationsButton" type="button" aria-label="Notifications" aria-expanded="false" aria-controls="notificationsPanel" title="Notifications">
+          <i class="ui-icon fa-solid fa-bell" aria-hidden="true"></i>
+          <span class="workspace-notifications__count" id="notificationCount" hidden></span>
+        </button>
+        <section class="workspace-notifications__panel" id="notificationsPanel" aria-labelledby="notificationsTitle" hidden>
+          <header class="workspace-notifications__header">
+            <h2 id="notificationsTitle">Notifications</h2>
+            <button class="workspace-notifications__close" type="button" data-notifications-close aria-label="Fermer les notifications" title="Fermer">
+              <i class="ui-icon fa-solid fa-xmark" aria-hidden="true"></i>
+            </button>
+          </header>
+          <div class="workspace-notifications__list" id="notificationsList" aria-live="polite">
+            <p class="workspace-notifications__empty">Aucune demande à valider.</p>
+          </div>
+          <button class="workspace-notifications__all" type="button" data-view="purchases">Voir les paiements</button>
+        </section>
+      </div>
     </header>
 
     <div id="workspaceError" class="workspace-alert" role="alert" hidden></div>
@@ -146,7 +208,7 @@
     <!-- Vue : Vue d'ensemble -->
     <section class="workspace-view" id="dashboardView">
       <div class="workspace-dashboard-showcase">
-        <div class="workspace-welcome" id="workspacePromo" role="group" aria-label="Présentation de MicroPay et PayPal">
+        <div class="workspace-welcome" id="workspacePromo" role="group" aria-label="Présentation de MicroPay, PayPal et de la carte">
           <article class="workspace-promo__slide is-active" data-promo-slide="micropay" aria-hidden="false">
             <div class="workspace-promo__brand">
               <img class="workspace-promo__logo" src="assets/micropay-logo.png" alt="">
@@ -171,6 +233,37 @@
             </div>
             <div class="sandbox-chip"><span></span> PayPal Sandbox</div>
           </article>
+          <article class="workspace-promo__slide workspace-promo__slide--card" data-promo-slide="card" aria-hidden="true">
+            <section class="workspace-promo__card" aria-label="Carte MicroPay fictive">
+              <button class="workspace-card-scene" id="workspacePromoDemoCard" type="button" aria-label="Retourner la carte MicroPay fictive" aria-pressed="false">
+                <span class="workspace-demo-card">
+                  <span class="workspace-demo-card__face workspace-demo-card__face--front">
+                    <span class="workspace-demo-card__top">
+                      <span class="workspace-demo-card__brand">MICROPAY</span>
+                      <i class="ui-icon fa-solid fa-wifi workspace-demo-card__contactless" aria-hidden="true"></i>
+                    </span>
+                    <span class="workspace-demo-card__chip" aria-hidden="true"></span>
+                    <span class="workspace-demo-card__number">0000&nbsp;&nbsp;0000&nbsp;&nbsp;0000&nbsp;&nbsp;0000</span>
+                    <span class="workspace-demo-card__details">
+                      <span><span class="workspace-demo-card__label">TITULAIRE</span><strong>EXEMPLE</strong></span>
+                      <span><span class="workspace-demo-card__label">EXPIRATION</span><strong>12/30</strong></span>
+                    </span>
+                  </span>
+                  <span class="workspace-demo-card__face workspace-demo-card__face--back">
+                    <span class="workspace-demo-card__magnetic" aria-hidden="true"></span>
+                    <span class="workspace-demo-card__signature"><span>SIGNATURE</span><strong>000</strong></span>
+                    <span class="workspace-demo-card__disclaimer">CARTE FICTIVE - SANS VALEUR BANCAIRE</span>
+                    <span class="workspace-demo-card__brand">MICROPAY</span>
+                  </span>
+                </span>
+              </button>
+              <span class="workspace-promo__card-hint">Carte fictive - cliquez pour la retourner</span>
+            </section>
+            <div class="workspace-promo__copy">
+              <h2>Découvrez la carte MicroPay.</h2>
+              <p class="workspace-intro">Une carte de démonstration pour illustrer vos paiements contrôlés.</p>
+            </div>
+          </article>
         </div>
 
         <section class="workspace-card-stage" aria-label="Carte MicroPay fictive">
@@ -179,7 +272,7 @@
               <span class="workspace-demo-card__face workspace-demo-card__face--front">
                 <span class="workspace-demo-card__top">
                   <span class="workspace-demo-card__brand">MICROPAY</span>
-                  <span class="google-icon workspace-demo-card__contactless" aria-hidden="true">contactless</span>
+                  <i class="ui-icon fa-solid fa-wifi workspace-demo-card__contactless" aria-hidden="true"></i>
                 </span>
                 <span class="workspace-demo-card__chip" aria-hidden="true"></span>
                 <span class="workspace-demo-card__number">0000&nbsp;&nbsp;0000&nbsp;&nbsp;0000&nbsp;&nbsp;0000</span>
@@ -202,7 +295,7 @@
 
       <section class="workspace-stats" id="workspaceStats" aria-label="Résumé des dépenses">
         <article class="workspace-stat is-active" data-stat-slide="budget" aria-hidden="false">
-          <span class="workspace-stat__icon google-icon" aria-hidden="true">account_balance_wallet</span>
+          <i class="workspace-stat__icon ui-icon fa-solid fa-wallet" aria-hidden="true"></i>
           <div class="workspace-stat__content">
             <span class="workspace-stat__label">Budget total des missions</span>
             <strong id="totalBudget">$0.00</strong>
@@ -210,7 +303,7 @@
           </div>
         </article>
         <article class="workspace-stat" data-stat-slide="spent" aria-hidden="true">
-          <span class="workspace-stat__icon google-icon" aria-hidden="true">payments</span>
+          <i class="workspace-stat__icon ui-icon fa-solid fa-money-bill-wave" aria-hidden="true"></i>
           <div class="workspace-stat__content">
             <span class="workspace-stat__label">Dépenses exécutées</span>
             <strong id="totalSpent">$0.00</strong>
@@ -218,7 +311,7 @@
           </div>
         </article>
         <article class="workspace-stat workspace-stat--pending" data-stat-slide="pending" aria-hidden="true">
-          <span class="workspace-stat__icon google-icon" aria-hidden="true">pending_actions</span>
+          <i class="workspace-stat__icon ui-icon fa-solid fa-clock" aria-hidden="true"></i>
           <div class="workspace-stat__content">
             <span class="workspace-stat__label">À valider</span>
             <strong id="pendingCount">0</strong>
@@ -226,20 +319,23 @@
           </div>
         </article>
         <article class="workspace-stat" data-stat-slide="missions" aria-hidden="true">
-          <span class="workspace-stat__icon google-icon" aria-hidden="true">rocket_launch</span>
+          <i class="workspace-stat__icon ui-icon fa-solid fa-rocket" aria-hidden="true"></i>
           <div class="workspace-stat__content">
             <span class="workspace-stat__label">Missions</span>
             <strong id="missionCount">0</strong>
             <small>En cours ou terminées</small>
           </div>
         </article>
+        <div class="workspace-clock" aria-label="Heure et date actuelles">
+          <time class="workspace-clock__time" id="workspaceClockTime">--:--</time>
+          <time class="workspace-clock__date" id="workspaceClockDate"></time>
+        </div>
       </section>
 
-      <section class="workspace-overview-grid" aria-label="Flux de paiement et raccourcis">
+      <section class="workspace-overview-grid" aria-label="Flux de paiement, analyse des dépenses et raccourcis">
         <section class="workspace-panel payment-flow-panel">
           <div class="panel-heading">
             <div>
-              <p class="workspace-eyebrow">ACTIVITÉ DES PAIEMENTS</p>
               <h2>Flux de paiement</h2>
             </div>
             <div class="flow-period" role="group" aria-label="Période du flux de paiement">
@@ -254,28 +350,53 @@
           <div class="payment-flow-chart" id="paymentFlowChart" role="img" aria-label="Flux des paiements exécutés sur les 7 derniers jours"></div>
         </section>
 
+        <section class="workspace-panel expense-analysis-panel" aria-labelledby="expenseAnalysisTitle">
+          <div class="panel-heading">
+            <div>
+              <h2 id="expenseAnalysisTitle">Analyse des dépenses</h2>
+            </div>
+          </div>
+          <div class="expense-analysis__content">
+            <div class="expense-analysis__chart" id="expenseAnalysisChart" role="img" aria-label="Budget utilisé : 0 %">
+              <div class="expense-analysis__center">
+                <strong id="expenseAnalysisPercent">0%</strong>
+                <span>utilisé</span>
+              </div>
+            </div>
+            <div class="expense-analysis__legend">
+              <div>
+                <span><i class="expense-analysis__key expense-analysis__key--spent"></i>Dépensé</span>
+                <strong id="expenseAnalysisSpent">$0.00</strong>
+              </div>
+              <div>
+                <span><i class="expense-analysis__key expense-analysis__key--available"></i>Disponible</span>
+                <strong id="expenseAnalysisAvailable">$0.00</strong>
+              </div>
+            </div>
+          </div>
+        </section>
+
         <section class="workspace-panel dashboard-shortcuts">
           <div class="panel-heading">
             <div>
-              <p class="workspace-eyebrow">ACCÈS RAPIDE</p>
               <h2>Que souhaitez-vous faire ?</h2>
             </div>
           </div>
           <div class="dashboard-shortcuts__list">
             <button type="button" data-view="create">
-              <span class="google-icon" aria-hidden="true">add_circle</span>
+              <i class="ui-icon fa-solid fa-circle-plus" aria-hidden="true"></i>
               <span><strong>Créer une mission</strong><small>Définir un objectif et ses limites</small></span>
-              <span class="google-icon" aria-hidden="true">arrow_forward</span>
+              <i class="ui-icon fa-solid fa-arrow-right" aria-hidden="true"></i>
             </button>
             <button type="button" data-view="purchases">
-              <span class="google-icon" aria-hidden="true">payments</span>
+              <i class="ui-icon fa-solid fa-money-bill-wave" aria-hidden="true"></i>
               <span><strong>Voir les paiements</strong><small>Suivre les demandes et décisions</small></span>
-              <span class="google-icon" aria-hidden="true">arrow_forward</span>
+              <i class="ui-icon fa-solid fa-arrow-right" aria-hidden="true"></i>
             </button>
             <button type="button" data-view="invoices">
-              <span class="google-icon" aria-hidden="true">receipt_long</span>
+              <i class="ui-icon fa-solid fa-receipt" aria-hidden="true"></i>
               <span><strong>Consulter les reçus</strong><small>Imprimer ou enregistrer un reçu</small></span>
-              <span class="google-icon" aria-hidden="true">arrow_forward</span>
+              <i class="ui-icon fa-solid fa-arrow-right" aria-hidden="true"></i>
             </button>
           </div>
         </section>
@@ -284,7 +405,6 @@
       <section class="workspace-panel" id="pendingPanel" hidden>
         <div class="panel-heading">
           <div>
-            <p class="workspace-eyebrow">DÉCISION REQUISE</p>
             <h2>Demandes à valider</h2>
           </div>
         </div>
@@ -294,7 +414,6 @@
       <section class="workspace-panel">
         <div class="panel-heading">
           <div>
-            <p class="workspace-eyebrow">ACTIVITÉ</p>
             <h2>Vos missions récentes</h2>
           </div>
         </div>
@@ -304,12 +423,11 @@
       <section class="workspace-panel">
         <div class="panel-heading">
           <div>
-            <p class="workspace-eyebrow">TRANSACTIONS</p>
             <h2>Paiements récents</h2>
           </div>
           <button class="workspace-text-link" type="button" data-view="purchases">
             Tous les paiements
-            <span class="google-icon" aria-hidden="true">arrow_forward</span>
+            <i class="ui-icon fa-solid fa-arrow-right" aria-hidden="true"></i>
           </button>
         </div>
         <div id="recentPayments" class="request-list"></div>
@@ -344,19 +462,19 @@
               placeholder="Ex. Compare les rapports récents sur le marché et résume les tendances clés…"
             ></textarea>
             <button class="mission-chat__voice" id="voiceInputButton" type="button" aria-label="Décrire la mission à la voix" aria-pressed="false" title="Décrire la mission à la voix">
-              <span class="google-icon" id="voiceInputIcon" aria-hidden="true">mic</span>
+              <i class="ui-icon fa-solid fa-microphone" id="voiceInputIcon" aria-hidden="true"></i>
             </button>
             <button class="mission-chat__send" id="startMission" type="submit" aria-label="Lancer l'agent">
-              <span class="google-icon" aria-hidden="true">arrow_upward</span>
+              <i class="ui-icon fa-solid fa-arrow-up" aria-hidden="true"></i>
             </button>
           </div>
           <p class="mission-chat__voice-status" id="voiceInputStatus" role="status" aria-live="polite" hidden></p>
 
           <details class="mission-settings">
             <summary>
-              <span class="google-icon" aria-hidden="true">tune</span>
+              <i class="ui-icon fa-solid fa-sliders" aria-hidden="true"></i>
               Règles et budget
-              <span class="mission-settings__chevron google-icon" aria-hidden="true">expand_more</span>
+              <i class="mission-settings__chevron ui-icon fa-solid fa-chevron-down" aria-hidden="true"></i>
             </summary>
             <div class="mission-params">
               <label class="mission-param">
@@ -390,15 +508,12 @@
 
           <p class="form-status" id="formStatus" role="status" aria-live="polite"></p>
         </form>
-
-        <p class="mission-safety-note">Les articles DummyJSON sont fictifs. Après votre validation, MicroPay envoie un virement PayPal Sandbox au compte de test configuré; aucun produit n’est livré et aucun argent réel n’est prélevé. Le moteur vérifie toujours le budget et les règles de la mission.</p>
       </section>
     </section>
 
     <!-- Vue : Reçus -->
     <section class="workspace-view" id="invoicesView" hidden>
       <div class="workspace-page-intro">
-        <p class="workspace-eyebrow">DOCUMENTS DE PAIEMENT</p>
         <h2>Reçus</h2>
         <p>Consultez les reçus de vos transactions Sandbox et imprimez-les ou enregistrez-les en PDF.</p>
       </div>
@@ -408,7 +523,6 @@
     <!-- Vue : Paiements -->
     <section class="workspace-view" id="purchasesView" hidden>
       <div class="workspace-page-intro">
-        <p class="workspace-eyebrow">JOURNAL DES DÉPENSES</p>
         <h2>Paiements</h2>
         <p>Demandes de paiement, décisions du moteur de politiques et transactions exécutées.</p>
       </div>
@@ -418,23 +532,69 @@
     <!-- Vue : Paramètres -->
     <section class="workspace-view" id="settingsView" hidden>
       <div class="workspace-page-intro">
-        <p class="workspace-eyebrow">PRÉFÉRENCES</p>
         <h2>Paramètres</h2>
-        <p>Personnalisez l’affichage de votre espace MicroPay.</p>
+        <p>Gérez votre profil, la connexion au serveur et l’apparence de votre espace MicroPay.</p>
       </div>
+      <section class="workspace-panel settings-profile-panel" aria-labelledby="settingsProfileTitle">
+        <div class="settings-profile-panel__heading">
+          <i class="ui-icon fa-solid fa-circle-user" aria-hidden="true"></i>
+          <div>
+            <h3 id="settingsProfileTitle">Profil</h3>
+            <p>Connecté en tant que</p>
+            <strong data-account-email>…</strong>
+          </div>
+        </div>
+        <div class="sidebar-status settings-profile-panel__status">
+          <span class="status-indicator" data-backend-indicator></span>
+          <span data-backend-status>Connexion au serveur…</span>
+        </div>
+        <div class="settings-profile-panel__actions">
+          <button class="app-logout" id="settingsLogoutButton" data-logout-button data-logout-status="settingsLogoutStatus" type="button">Se déconnecter</button>
+          <span class="sidebar-empty" id="settingsLogoutStatus" role="status" aria-live="polite"></span>
+        </div>
+      </section>
       <section class="workspace-panel preference-panel">
         <div>
           <h3>Apparence</h3>
-          <p>Choisissez le thème clair ou sombre. Votre choix est mémorisé sur cet appareil.</p>
+          <p>Activez le mode clair ou sombre. Votre choix est mémorisé sur cet appareil.</p>
         </div>
         <button class="theme-toggle preference-theme-toggle" type="button" data-theme-toggle aria-label="Changer le thème" title="Changer le thème"></button>
+      </section>
+      <section class="workspace-panel language-preference-panel">
+        <div>
+          <h3>Langue</h3>
+          <p>Choisissez la langue de l’interface MicroPay.</p>
+        </div>
+        <label class="language-preference-control" for="languageSelect">
+          <span>Langue de l’interface</span>
+          <select class="field-input" id="languageSelect" data-language-select>
+            <option value="fr">Français</option>
+            <option value="en">English</option>
+          </select>
+        </label>
+      </section>
+      <section class="workspace-panel appearance-color-panel" aria-labelledby="appearanceColorsTitle">
+        <div>
+          <h3 id="appearanceColorsTitle">Couleurs de l’interface</h3>
+          <p>Personnalisez les boutons principaux et les titres.</p>
+        </div>
+        <div class="appearance-color-controls">
+          <label class="appearance-color-control" for="buttonColorInput">
+            <span>Couleur des boutons principaux</span>
+            <input id="buttonColorInput" type="color" data-appearance-color="button" value="#f5f5f5">
+          </label>
+          <label class="appearance-color-control" for="titleColorInput">
+            <span>Couleur des titres</span>
+            <input id="titleColorInput" type="color" data-appearance-color="title" value="#f5f5f5">
+          </label>
+        </div>
+        <button class="small-button appearance-color-reset" id="resetAppearanceColors" type="button">Réinitialiser les couleurs</button>
       </section>
     </section>
 
     <!-- Vue : Centre d'aide -->
     <section class="workspace-view" id="helpView" hidden>
       <div class="workspace-page-intro">
-        <p class="workspace-eyebrow">GUIDE MICROPAY</p>
         <h2>Centre d'aide</h2>
         <p>Les étapes essentielles pour piloter vos dépenses avec MicroPay.</p>
       </div>
@@ -479,6 +639,10 @@
 
       function setViewNav(view) {
         var resolved = views[view] ? view : 'dashboard';
+        setMobileMenuOpen(false);
+        document.documentElement.classList.toggle('workspace-dashboard-active', resolved === 'dashboard');
+        document.documentElement.classList.toggle('workspace-sticky-header-active', resolved !== 'create');
+        document.documentElement.classList.toggle('workspace-creating-active', resolved === 'create');
         document.body.classList.toggle('workspace-page--creating', resolved === 'create');
         Object.keys(views).forEach(function (name) {
           var el = document.getElementById(views[name]);
@@ -489,9 +653,21 @@
         document.querySelectorAll('[data-view]').forEach(function (btn) {
           btn.classList.toggle('is-active', btn.dataset.view === resolved);
         });
+        document.querySelectorAll('[data-mobile-menu-toggle]').forEach(function (button) {
+          button.classList.toggle('is-active', resolved === 'help' || resolved === 'settings');
+        });
         sessionStorage.setItem('micropay-active-view', resolved);
         // Expose pour le module workspace.js
         window._currentView = resolved;
+      }
+
+      function setMobileMenuOpen(open) {
+        document.body.classList.toggle('workspace-page--mobile-menu-open', open);
+        document.querySelectorAll('[data-mobile-menu-toggle]').forEach(function (button) {
+          button.setAttribute('aria-expanded', String(open));
+        });
+        var scrim = document.querySelector('.mobile-menu-scrim');
+        if (scrim) scrim.hidden = !open;
       }
 
       document.querySelectorAll('[data-view]').forEach(function (btn) {
@@ -504,11 +680,23 @@
           var collapsed = document.body.classList.toggle('workspace-page--sidebar-collapsed');
           var label = collapsed ? 'Ouvrir le menu' : 'Réduire le menu';
           document.querySelectorAll('[data-sidebar-toggle]').forEach(function (button) {
-            button.querySelector('.google-icon').textContent = collapsed ? 'menu' : 'menu_open';
+            var icon = button.querySelector('.ui-icon');
+            icon.classList.toggle('fa-bars', collapsed);
+            icon.classList.toggle('fa-angles-left', !collapsed);
             button.setAttribute('aria-expanded', String(!collapsed));
             button.setAttribute('aria-label', label);
             button.setAttribute('title', label);
           });
+        });
+      });
+      document.querySelectorAll('[data-mobile-menu-toggle]').forEach(function (button) {
+        button.addEventListener('click', function () {
+          setMobileMenuOpen(!document.body.classList.contains('workspace-page--mobile-menu-open'));
+        });
+      });
+      document.querySelectorAll('[data-mobile-menu-close]').forEach(function (button) {
+        button.addEventListener('click', function () {
+          setMobileMenuOpen(false);
         });
       });
       setViewNav(sessionStorage.getItem('micropay-active-view') || 'dashboard');
@@ -519,6 +707,9 @@
   </script>
 
   <script type="module" src="js/workspace.js"></script>
+  <script src="js/i18n.js"></script>
   <script src="js/theme.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/ui-effects.js"></script>
 </body>
 </html>

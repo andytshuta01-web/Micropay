@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#080808">
+  <title>Créer un compte — MicroPay</title>
+  <script src="js/theme-init.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Syne:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/fontawesome/css/all.min.css">
+  <link rel="stylesheet" href="css/theme.css">
+  <link rel="stylesheet" href="css/home.css">
+  <link rel="stylesheet" href="css/workspace.css">
+</head>
+<body class="auth-page auth-page--signup">
+  <div class="network-background" aria-hidden="true"><img src="assets/network-background.svg" alt=""></div>
+  <a class="auth-back" href="index.html"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Accueil</a>
+  <button class="theme-toggle auth-theme-toggle" type="button" data-theme-toggle aria-label="Changer le thème"></button>
+  <main class="auth-shell">
+    <aside class="auth-visual" aria-label="Carte MicroPay fictive">
+      <div class="auth-visual__copy">
+        <h2>Vos décisions,<br><span>toujours en main.</span></h2>
+      </div>
+      <section class="workspace-card-stage" aria-label="Carte fictive animée">
+        <button class="workspace-card-scene" id="signupDemoCard" data-auth-demo-card type="button" aria-label="Retourner la carte MicroPay fictive" aria-pressed="false">
+          <span class="workspace-demo-card">
+            <span class="workspace-demo-card__face workspace-demo-card__face--front">
+              <span class="workspace-demo-card__top">
+                <span class="workspace-demo-card__brand">MICROPAY</span>
+                <i class="ui-icon fa-solid fa-wifi workspace-demo-card__contactless" aria-hidden="true"></i>
+              </span>
+              <span class="workspace-demo-card__chip" aria-hidden="true"></span>
+              <span class="workspace-demo-card__number">0000&nbsp;&nbsp;0000&nbsp;&nbsp;0000&nbsp;&nbsp;0000</span>
+              <span class="workspace-demo-card__details">
+                <span><span class="workspace-demo-card__label">TITULAIRE</span><strong>EXEMPLE</strong></span>
+                <span><span class="workspace-demo-card__label">EXPIRATION</span><strong>12/30</strong></span>
+              </span>
+            </span>
+            <span class="workspace-demo-card__face workspace-demo-card__face--back">
+              <span class="workspace-demo-card__magnetic" aria-hidden="true"></span>
+              <span class="workspace-demo-card__signature"><span>SIGNATURE</span><strong>000</strong></span>
+              <span class="workspace-demo-card__disclaimer">CARTE FICTIVE - SANS VALEUR BANCAIRE</span>
+              <span class="workspace-demo-card__brand">MICROPAY</span>
+            </span>
+          </span>
+        </button>
+      </section>
+    </aside>
+
+    <section class="auth-card" aria-labelledby="signupTitle">
+      <h1 id="signupTitle">Créez votre compte.</h1>
+      <p class="auth-description">Vos missions et vos règles de paiement restent séparées de celles des autres comptes.</p>
+      <form class="auth-form" id="authForm" data-auth-mode="register">
+        <label for="email">Adresse e-mail</label>
+        <input class="field-input" id="email" name="email" type="email" autocomplete="email" maxlength="254" required>
+        <label for="password">Mot de passe</label>
+        <input class="field-input" id="password" name="password" type="password" autocomplete="new-password" minlength="8" maxlength="128" required>
+        <span class="auth-help">8 caractères minimum.</span>
+        <label for="confirmPassword">Confirmer le mot de passe</label>
+        <input class="field-input" id="confirmPassword" name="confirmPassword" type="password" autocomplete="new-password" minlength="8" maxlength="128" required>
+        <button class="home-button home-button--primary" type="submit">Créer mon compte</button>
+        <p class="auth-status" id="authStatus" role="status" aria-live="polite"></p>
+      </form>
+      <p class="auth-switch">Vous avez déjà un compte ? <a href="login.html">Se connecter</a></p>
+    </section>
+  </main>
+  <script src="js/i18n.js"></script>
+  <script src="js/theme.js"></script>
+  <script src="js/auth.js"></script>
+  <script type="module" src="js/auth-demo-card.js"></script>
+  <script src="js/ui-effects.js"></script>
+</body>
+</html>

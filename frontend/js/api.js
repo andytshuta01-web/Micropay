@@ -18,6 +18,10 @@ async function apiRequest(path, options = {}) {
     );
   }
   const data = res.status === 204 ? null : await res.json();
+  if (res.status === 401) {
+    window.location.replace('login.html?next=workspace.html');
+    throw new Error(data?.error || 'Veuillez vous connecter pour continuer.');
+  }
   if (!res.ok) throw new Error(data?.error || 'Erreur de communication avec le serveur.');
   return data;
 }

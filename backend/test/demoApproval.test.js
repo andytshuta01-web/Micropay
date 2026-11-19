@@ -8,7 +8,7 @@ import { test } from 'node:test';
 
 test('DummyJSON approval submits a sandbox payout only after manual approval', async () => {
   const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'micropay-demo-'));
-  const dbPath = path.join(tempDir, 'db.json');
+  const dbPath = path.join(tempDir, 'micropay.sqlite');
   const env = {
     MICROPAY_DB_PATH: process.env.MICROPAY_DB_PATH,
     GROQ_API_KEY: process.env.GROQ_API_KEY,
@@ -30,41 +30,36 @@ test('DummyJSON approval submits a sandbox payout only after manual approval', a
   process.env.PAYPAL_MODE = 'sandbox';
   process.env.PAYPAL_SANDBOX_RECEIVER_EMAIL = '';
 
-  fs.writeFileSync(dbPath, JSON.stringify({
-    missions: {
-      mission_demo: {
-        id: 'mission_demo',
-        objective: 'Find demo earphones',
-        budgetTotal: 20,
-        budgetRemaining: 20,
-      },
-    },
-    policies: {
-      mission_demo: {
-        missionId: 'mission_demo',
-        autoApproveThreshold: 0,
-        allowedProviders: [],
-        maxPaymentsPerMinute: 3,
-        minConfidence: 0.5,
-      },
-    },
-    requests: {
-      request_demo: {
-        id: 'request_demo',
-        missionId: 'mission_demo',
-        resourceTitle: 'Demo Wireless Earphones',
-        providerId: 'prov_dummyjson',
-        providerName: 'Boutique générique de démonstration',
-        externalProductId: 7,
-        isDemoProduct: true,
-        amount: 19.99,
-        transaction: { status: 'pending_approval' },
-      },
-    },
-    logs: {},
-  }));
-
   try {
+    const { getDb, saveDb } = await import('../src/store.js');
+    const db = getDb();
+    db.missions.mission_demo = {
+      id: 'mission_demo',
+      userId: 'test-user',
+      objective: 'Find demo earphones',
+      budgetTotal: 20,
+      budgetRemaining: 20,
+    };
+    db.policies.mission_demo = {
+      missionId: 'mission_demo',
+      autoApproveThreshold: 0,
+      allowedProviders: [],
+      maxPaymentsPerMinute: 3,
+      minConfidence: 0.5,
+    };
+    db.requests.request_demo = {
+      id: 'request_demo',
+      missionId: 'mission_demo',
+      resourceTitle: 'Demo Wireless Earphones',
+      providerId: 'prov_dummyjson',
+      providerName: 'Boutique générique de démonstration',
+      externalProductId: 7,
+      isDemoProduct: true,
+      amount: 19.99,
+      transaction: { status: 'pending_approval' },
+    };
+    saveDb();
+
     const { config } = await import('../src/config.js');
     paypalConfig = config.paypal;
     originalPaypalConfig = { ...paypalConfig };
@@ -98,7 +93,10 @@ test('DummyJSON approval submits a sandbox payout only after manual approval', a
     const { missionsRouter } = await import('../src/routes/missions.js');
     const app = express();
     app.use(express.json());
-    app.use('/api/missions', missionsRouter);
+    app.use('/api/missions', (req, res, next) => {
+      req.user = { id: 'test-user' };
+      next();
+    }, missionsRouter);
     server = app.listen(0, '127.0.0.1');
     await once(server, 'listening');
     const baseUrl = `http://127.0.0.1:${server.address().port}/api/missions`;
@@ -137,9 +135,9 @@ test('DummyJSON approval submits a sandbox payout only after manual approval', a
     assert.equal(result.request.transaction.paypalStatus, 'SUCCESS');
     assert.equal(result.mission.budgetRemaining, 0.01);
 
-    const savedDb = JSON.parse(fs.readFileSync(dbPath, 'utf8'));
-    assert.equal(savedDb.requests.request_demo.transaction.status, 'executed');
-    assert.equal(savedDb.missions.mission_demo.budgetRemaining, 0.01);
+    assert.equal(fs.readFileSync(dbPath).subarray(0, 16).toString(), 'SQLite format 3\u0000');
+    assert.equal(db.requests.request_demo.transaction.status, 'executed');
+    assert.equal(db.missions.mission_demo.budgetRemaining, 0.01);
 
     const invalidMissionResponse = await fetch(baseUrl, {
       method: 'POST',
